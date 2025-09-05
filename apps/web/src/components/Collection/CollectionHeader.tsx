@@ -1,10 +1,11 @@
-import { Search, Globe } from "lucide-react";
+import { Search, Globe, ArrowLeft } from "lucide-react";
 
 interface CollectionHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
+  onBack?: () => void;
 }
 
 export default function CollectionHeader({
@@ -12,15 +13,28 @@ export default function CollectionHeader({
   onSearchChange,
   selectedCountry,
   onCountryChange,
+  onBack,
 }: CollectionHeaderProps) {
   return (
     <div className="mb-8">
-      <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-4">
-        Collection
-      </h1>
-      <p className="text-gray-400 mb-6">
-        Browse available collection of fish species and fishing baits
-      </p>
+      <div className="flex items-center space-x-4 mb-4">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="p-2 rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all duration-200"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+        )}
+        <div>
+          <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
+            Collection
+          </h1>
+          <p className="text-gray-400 mt-1">
+            Browse available collection of fish species and fishing baits
+          </p>
+        </div>
+      </div>
 
       {/* Search Input and Country Selector */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">

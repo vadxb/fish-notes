@@ -2,6 +2,7 @@
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { useSpotStore, type Spot } from "@store/useSpotStore";
 import {
   SpotsHeader,
@@ -97,6 +98,7 @@ export default function SpotsPage() {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             onAddNew={() => router.push("/spots/new")}
+            onBack={() => router.back()}
           />
 
           {/* Error State */}

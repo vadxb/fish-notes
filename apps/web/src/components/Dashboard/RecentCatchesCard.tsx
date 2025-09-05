@@ -84,7 +84,7 @@ export default function RecentCatchesCard({
                 e.stopPropagation();
                 router.push("/catches/new");
               }}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+              className="px-6 py-3 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
             >
               Log First Catch
             </button>

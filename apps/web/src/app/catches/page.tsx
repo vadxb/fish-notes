@@ -2,7 +2,7 @@
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, ArrowLeft } from "lucide-react";
 import { useCatchStore } from "@store/useCatchStore";
 import { CatchCard } from "../../components/Catches/CatchCard";
 import { CatchSearchBar } from "../../components/Catches/CatchSearchBar";
@@ -30,22 +30,27 @@ export default function CatchesPage() {
     setIsClient(true);
   }, []);
 
-  // Fetch catches data using Zustand store
+  // Fetch catches when component mounts
   useEffect(() => {
-    if (!isClient || !user) return;
-    fetchCatches();
+    if (isClient && user) {
+      fetchCatches();
+    }
   }, [isClient, user, fetchCatches]);
 
-  // Show loading state while checking authentication or fetching data
-  if (!isClient || loading || dataLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading catches...</p>
-        </div>
-      </div>
-    );
+  // Show loading state for SSR
+  if (!isClient) {
+    return <div>Loading...</div>;
+  }
+
+  // Show loading state
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Redirect to login if not authenticated
+  if (!user) {
+    router.push("/login");
+    return null;
   }
 
   // Don't render if user is null (during logout)
@@ -80,11 +85,9 @@ export default function CatchesPage() {
         deleteCatchFromStore(catchId);
       } else {
         console.error("Failed to delete catch");
-        alert("Failed to delete catch. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting catch:", error);
-      alert("Error deleting catch. Please try again.");
     }
   };
 
@@ -94,18 +97,24 @@ export default function CatchesPage() {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-2">
+            <div className="flex items-center space-x-4 mb-6">
+              <button
+                onClick={() => router.back()}
+                className="p-2 rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all duration-200"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
                   My Catches
                 </h1>
-                <p className="text-gray-400 text-lg">
+                <p className="text-gray-400">
                   Track and manage your fishing catches
                 </p>
               </div>
               <button
                 onClick={() => router.push("/catches/new")}
-                className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 border border-blue-500/30"
+                className="flex items-center space-x-2 px-6 py-3 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 border border-blue-500/30"
               >
                 <Plus className="w-5 h-5" />
                 <span className="font-medium">Add Catch</span>

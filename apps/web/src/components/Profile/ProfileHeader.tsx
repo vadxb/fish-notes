@@ -20,7 +20,7 @@ export default function ProfileHeader({
         <ArrowLeft className="w-6 h-6" />
       </button>
       <div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-2">
+        <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
           {title}
         </h1>
         <p className="text-gray-400">{description}</p>

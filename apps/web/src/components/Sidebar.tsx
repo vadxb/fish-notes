@@ -132,7 +132,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
           <div className="flex items-center space-x-3">
             <FishingLogo className="w-8 h-8" color="#60a5fa" />
             <div>
-              <h1 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
+              <h1 className="text-lg font-semibold bg-blue-600/50 bg-clip-text text-transparent">
                 Fisherman's Notes
               </h1>
             </div>

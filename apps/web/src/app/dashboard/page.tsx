@@ -132,7 +132,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => router.push("/catches/new")}
-                className="flex items-center space-x-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 group"
+                className="flex items-center space-x-3 px-6 py-4 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 group"
               >
                 <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-all duration-200">
                   <Fish className="w-5 h-5" />

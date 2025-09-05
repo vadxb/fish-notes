@@ -1,4 +1,4 @@
-import { Search, Filter, Plus } from "lucide-react";
+import { Search, Filter, Plus, ArrowLeft } from "lucide-react";
 
 interface SpotsHeaderProps {
   showFavoritesOnly: boolean;
@@ -6,6 +6,7 @@ interface SpotsHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onAddNew: () => void;
+  onBack?: () => void;
 }
 
 export default function SpotsHeader({
@@ -14,12 +15,30 @@ export default function SpotsHeader({
   searchQuery,
   onSearchChange,
   onAddNew,
+  onBack,
 }: SpotsHeaderProps) {
   return (
     <div className="mb-8">
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-6">
-        {showFavoritesOnly ? "Favorite Spots" : "Fishing Spots"}
-      </h1>
+      <div className="flex items-center space-x-4 mb-6">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="p-2 rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 text-gray-300 hover:text-white hover:bg-gray-700/50 transition-all duration-200"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+        )}
+        <div>
+          <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
+            {showFavoritesOnly ? "Favorite Spots" : "Fishing Spots"}
+          </h1>
+          <p className="text-gray-400 mt-1">
+            {showFavoritesOnly
+              ? "Your favorite fishing locations"
+              : "Discover and manage your fishing spots"}
+          </p>
+        </div>
+      </div>
 
       {/* Search Input and Controls */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
@@ -47,7 +66,7 @@ export default function SpotsHeader({
           </button>
           <button
             onClick={onAddNew}
-            className="flex items-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+            className="flex items-center space-x-2 px-4 py-3 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Spot</span>

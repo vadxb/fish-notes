@@ -2,7 +2,7 @@
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Fish, Bug } from "lucide-react";
+import { Fish, Bug, ArrowLeft } from "lucide-react";
 import {
   CollectionHeader,
   CollectionCard,
@@ -122,6 +122,7 @@ export default function CollectionPage() {
             onSearchChange={setSearchQuery}
             selectedCountry={selectedCountry}
             onCountryChange={setSelectedCountry}
+            onBack={() => router.back()}
           />
 
           {/* Content Grid */}

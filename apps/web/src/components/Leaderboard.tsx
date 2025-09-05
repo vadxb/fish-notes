@@ -233,7 +233,7 @@ const Leaderboard = () => {
         </div>
         <button
           onClick={() => router.push("/rankings")}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
         >
           <span className="text-sm">See all rankings</span>
           <ArrowRight className="w-4 h-4" />

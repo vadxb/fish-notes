@@ -33,7 +33,7 @@ export default function EventHeader({
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
             {title}
           </h1>
           {subtitle && <p className="text-gray-400">{subtitle}</p>}
@@ -44,7 +44,7 @@ export default function EventHeader({
         {showNewButton && onNew && (
           <button
             onClick={onNew}
-            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
           >
             <Plus className="w-4 h-4" />
             <span>{newButtonText}</span>

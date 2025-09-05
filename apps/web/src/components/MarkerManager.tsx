@@ -179,7 +179,7 @@ export default function MarkerManager({
           className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             isAddingMarker
               ? "bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:text-red-300 border border-red-500/30"
-              : "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-blue-500/25"
+              : "bg-blue-600/20 text-white hover:bg-blue-600/30 shadow-lg hover:shadow-blue-500/25"
           } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
         >
           {isAddingMarker ? (

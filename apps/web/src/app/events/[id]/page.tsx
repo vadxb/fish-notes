@@ -266,7 +266,7 @@ export default function EventDetailPage({
           </h1>
           <button
             onClick={() => router.push("/events")}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200"
+            className="bg-blue-600/20 text-white px-4 py-2 rounded-lg hover:bg-blue-600/30 transition-all duration-200"
           >
             Back to Events
           </button>

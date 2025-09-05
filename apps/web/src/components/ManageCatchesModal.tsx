@@ -544,7 +544,7 @@ export default function ManageCatchesModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-700/50 flex-shrink-0">
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
               Manage Catches
             </h2>
             <p className="text-gray-400 mt-1 flex items-center space-x-2">
@@ -685,7 +685,7 @@ export default function ManageCatchesModal({
                 <div className="p-2 bg-gray-700/50 rounded-lg">
                   <Fish className="w-6 h-6 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
+                <h3 className="text-xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
                   {isAddingCatch ? "Add New Catch" : "Edit Catch"}
                 </h3>
               </div>
@@ -892,7 +892,7 @@ export default function ManageCatchesModal({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-blue-500/25"
+                    className="flex items-center space-x-2 px-6 py-3 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-blue-500/25"
                   >
                     <Save className="w-5 h-5" />
                     <span>
@@ -926,7 +926,7 @@ export default function ManageCatchesModal({
           <div className="flex space-x-3 ml-auto">
             <button
               onClick={handleAddCatch}
-              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
             >
               <Plus className="w-4 h-4" />
               <span>Add Catch</span>

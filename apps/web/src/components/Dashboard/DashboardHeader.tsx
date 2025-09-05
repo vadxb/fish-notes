@@ -11,7 +11,7 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
   return (
     <div className="mb-8">
-      <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent mb-2">
+      <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
         Welcome back, {userName || userEmail}!
       </h1>
       <p className="text-gray-400">

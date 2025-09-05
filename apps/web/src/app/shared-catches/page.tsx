@@ -219,7 +219,7 @@ const SharedCatchesPage = () => {
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-white bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
               Shared Catches
             </h1>
           </div>

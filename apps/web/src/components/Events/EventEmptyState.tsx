@@ -40,7 +40,7 @@ export default function EventEmptyState({
       {onCreateNew && (
         <button
           onClick={onCreateNew}
-          className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+          className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
         >
           <Plus className="w-5 h-5" />
           <span>Create New Event</span>
