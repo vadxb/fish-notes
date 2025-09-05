@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id              String      @id @default(cuid())
+  email           String      @unique
+  password        String
+  name            String?
+  username        String?     @unique
+  avatar          String?     // URL to avatar image
+  subscription    String      @default("free") // "free" or "premium"
+  premiumExpiresAt DateTime?  // When premium subscription expires
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime?   @updatedAt
+  catches         Catch[]
+  events          FishEvent[]
+  spots           Spot[]
+}
+
+model Catch {
+  id                    String     @id @default(cuid())
+  userId                String
+  species               String
+  weight                Float?
+  bait                  String?
+  location              String?
+  spotId                String?
+  eventId               String?
+  photoUrls             Json?
+  comments              String?
+  weather               Json?
+  isShared              Boolean    @default(false)
+  createdAt             DateTime   @default(now())
+  selectedMarkerIndexes Json?
+  event                 FishEvent? @relation(fields: [eventId], references: [id])
+  user                  User       @relation(fields: [userId], references: [id])
+  spot                  Spot?      @relation(fields: [spotId], references: [id])
+}
+
+model Spot {
+  id          String      @id @default(cuid())
+  userId      String
+  name        String
+  notes       String?
+  latitude    Float
+  longitude   Float
+  mapImageUrl String?
+  isFavorite  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  coordinates Json?
+  catches     Catch[]
+  events      FishEvent[]
+  user        User        @relation(fields: [userId], references: [id])
+}
+
+model WaterBody {
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  latitude  Float
+  longitude Float
+  country   String
+  region    String?
+  geometry  Json?
+  createdAt DateTime @default(now())
+}
+
+model Fish {
+  id             String   @id @default(cuid())
+  commonName     String
+  scientificName String
+  country        String
+  habitat        String?
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+}
+
+model Bait {
+  id         String   @id @default(cuid())
+  commonName String
+  country    String
+  imageUrl   String?
+  createdAt  DateTime @default(now())
+}
+
+model FishEvent {
+  id                    String    @id @default(cuid())
+  userId                String
+  title                 String
+  notes                 String?
+  startAt               DateTime
+  endAt                 DateTime?
+  locationType          String
+  locationText          String?
+  spotId                String?
+  selectedMarkerIndexes Json?
+  createdAt             DateTime  @default(now())
+  catches               Catch[]
+  spot                  Spot?     @relation(fields: [spotId], references: [id])
+  user                  User      @relation(fields: [userId], references: [id])
+}

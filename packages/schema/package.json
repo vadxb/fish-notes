@@ -1,0 +1,22 @@
+{
+  "name": "@repo/schema",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "seed": "tsx seed.ts",
+    "test-water-bodies": "tsx seedWaterBodies.ts test",
+    "seed-water-bodies": "tsx seedWaterBodies.ts seed",
+    "seed-fish": "tsx seedFish.ts",
+    "seed-baits": "tsx seedBaits.ts",
+    "preview-fish": "tsx previewFish.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.15.0",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.2"
+  }
+}
