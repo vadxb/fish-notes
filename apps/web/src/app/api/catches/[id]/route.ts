@@ -17,7 +17,7 @@ export async function GET(
       return NextResponse.json({ error: "No token provided" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token);
+    const payload = verifyToken(token);
     if (!payload) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
@@ -75,7 +75,7 @@ export async function PUT(
       return NextResponse.json({ error: "No token provided" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token);
+    const payload = verifyToken(token);
     if (!payload) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
@@ -176,7 +176,7 @@ export async function DELETE(
       return NextResponse.json({ error: "No token provided" }, { status: 401 });
     }
 
-    const payload = await verifyToken(token);
+    const payload = verifyToken(token);
     if (!payload) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
@@ -191,21 +191,28 @@ export async function DELETE(
       return NextResponse.json({ error: "Catch not found" }, { status: 404 });
     }
 
-    // Delete associated photo files
-    if (existingCatch.photoUrls && Array.isArray(existingCatch.photoUrls)) {
-      for (const photoUrl of existingCatch.photoUrls) {
-        try {
-          // Convert URL path to file system path
-          const filePath = join(process.cwd(), "public", photoUrl as string);
-          if (existsSync(filePath)) {
-            await unlink(filePath);
-            console.log(`Deleted file: ${filePath}`);
+    // Delete associated photo files (non-blocking)
+    try {
+      if (existingCatch.photoUrls && Array.isArray(existingCatch.photoUrls)) {
+        for (const photoUrl of existingCatch.photoUrls) {
+          try {
+            // Convert URL path to file system path
+            const filePath = join(process.cwd(), "public", photoUrl as string);
+            if (existsSync(filePath)) {
+              await unlink(filePath);
+              console.log(`Deleted file: ${filePath}`);
+            } else {
+              console.log(`File not found, skipping: ${filePath}`);
+            }
+          } catch (fileError) {
+            console.error(`Error deleting file ${photoUrl}:`, fileError);
+            // Continue with other files even if one fails
           }
-        } catch (fileError) {
-          console.error(`Error deleting file ${photoUrl}:`, fileError);
-          // Continue with other files even if one fails
         }
       }
+    } catch (photoError) {
+      console.error("Error during photo deletion process:", photoError);
+      // Don't fail the entire deletion if photos can't be deleted
     }
 
     // Delete the catch from database
@@ -213,11 +220,16 @@ export async function DELETE(
       where: { id },
     });
 
-    return NextResponse.json({ message: "Catch deleted successfully" });
+    return NextResponse.json({
+      success: true,
+      message: "Catch deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting catch:", error);
     return NextResponse.json(
-      { error: "Failed to delete catch" },
+      {
+        error: `Failed to delete catch: ${error instanceof Error ? error.message : "Unknown error"}`,
+      },
       { status: 500 }
     );
   }

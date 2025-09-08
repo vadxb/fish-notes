@@ -55,7 +55,14 @@ export const CatchCard: React.FC<CatchCardProps> = ({
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm("Are you sure you want to delete this catch?")) {
-      await onDelete(catch_.id);
+      // Disable the button to prevent double-clicks
+      const button = e.currentTarget as HTMLButtonElement;
+      button.disabled = true;
+      try {
+        await onDelete(catch_.id);
+      } finally {
+        button.disabled = false;
+      }
     }
   };
 

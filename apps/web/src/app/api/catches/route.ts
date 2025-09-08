@@ -64,6 +64,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log("Create catch - User ID:", payload.userId);
+    console.log("Create catch - Body:", body);
+    
     const {
       species,
       weight,

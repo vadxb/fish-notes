@@ -45,7 +45,6 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           onDrop={onDrop}
-          onClick={() => !disabled && fileInputRef.current?.click()}
         >
           <input
             ref={fileInputRef}
@@ -54,6 +53,7 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
             accept="image/*"
             onChange={onFileChange}
             disabled={disabled}
+            onClick={(e) => e.stopPropagation()}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
           />
 

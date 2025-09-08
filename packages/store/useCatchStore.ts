@@ -154,13 +154,19 @@ export const useCatchStore = create<CatchState>()(
       },
 
       deleteCatch: async (id) => {
+        console.log("deleteCatch called with ID:", id);
         set({ loading: true, error: null });
         try {
           const response = await fetch(`/api/catches/${id}`, {
             method: "DELETE",
           });
 
+          console.log("Delete response status:", response.status);
+          console.log("Delete response ok:", response.ok);
+
           if (response.ok) {
+            const data = await response.json();
+            console.log("Delete response data:", data);
             set((state) => ({
               catches: state.catches.filter((catch_) => catch_.id !== id),
               loading: false,
@@ -168,8 +174,10 @@ export const useCatchStore = create<CatchState>()(
           } else {
             const errorData = await response.json();
             console.error("Failed to delete catch:", errorData);
+            console.error("Response status:", response.status);
+            console.error("Response headers:", response.headers);
             set({
-              error: `Failed to delete catch: ${response.status}`,
+              error: `Failed to delete catch: ${errorData.error || response.status}`,
               loading: false,
             });
           }
