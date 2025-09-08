@@ -56,6 +56,7 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
   const [loadingSpot, setLoadingSpot] = useState(true);
   const [mapImage, setMapImage] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [userCountryId, setUserCountryId] = useState<string | null>(null);
   const [selectedWaterBody, setSelectedWaterBody] = useState<WaterBody | null>(
     null
   );
@@ -86,6 +87,32 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
   useEffect(() => {
     formDataRef.current = formData;
   }, [formData]);
+
+  // Fetch user profile to get country
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.countryId) {
+            setUserCountryId(userData.countryId);
+          } else {
+            // If no country set, default to Belarus
+            setUserCountryId("cmfb05q9j0000z5nzihd81gci"); // Belarus ID
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to Belarus if profile fetch fails
+        setUserCountryId("cmfb05q9j0000z5nzihd81gci");
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   // Simple map click handler - ONE source of truth
   const handleMapClick = useCallback(
@@ -292,12 +319,14 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
     return null;
   }
 
-  if (loadingSpot) {
+  if (loadingSpot || !userCountryId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading spot...</p>
+          <p className="text-gray-300">
+            {loadingSpot ? "Loading spot..." : "Loading your country data..."}
+          </p>
         </div>
       </div>
     );
@@ -353,6 +382,7 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
                   formData={formData}
                   selectedWaterBody={selectedWaterBody}
                   isSubmitting={isSubmitting}
+                  countryId={userCountryId || undefined}
                   onInputChange={handleInputChange}
                   onWaterBodySelect={handleWaterBodySelect}
                   onGetCurrentLocation={getCurrentLocation}

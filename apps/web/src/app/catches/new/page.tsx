@@ -57,6 +57,7 @@ export default function NewCatchPage() {
   const { addCatch } = useCatchStore();
 
   const [dataLoading, setDataLoading] = useState(true);
+  const [userCountryId, setUserCountryId] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showFishDropdown, setShowFishDropdown] = useState(false);
   const [showBaitDropdown, setShowBaitDropdown] = useState(false);
@@ -83,6 +84,32 @@ export default function NewCatchPage() {
     setIsClient(true);
   }, []);
 
+  // Fetch user profile to get country
+  useEffect(() => {
+    if (!isClient || !user) return;
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.countryId) {
+            setUserCountryId(userData.countryId);
+          } else {
+            // If no country set, default to Belarus
+            setUserCountryId("cmfb05q9j0000z5nzihd81gci"); // Belarus ID
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to Belarus if profile fetch fails
+        setUserCountryId("cmfb05q9j0000z5nzihd81gci");
+      }
+    };
+
+    fetchUserProfile();
+  }, [isClient, user]);
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -103,17 +130,17 @@ export default function NewCatchPage() {
 
   // Fetch data for dropdowns
   useEffect(() => {
-    if (!isClient || !user) return;
+    if (!isClient || !user || !userCountryId) return;
 
     const fetchData = async () => {
       try {
         setDataLoading(true);
 
-        // Fetch all data using stores
+        // Fetch all data using stores with user's country
         await Promise.all([
           fetchSpots(),
-          fetchFishes(),
-          fetchBaits(),
+          fetchFishes(userCountryId),
+          fetchBaits(userCountryId),
           fetchEvents(),
         ]);
       } catch (error) {
@@ -124,12 +151,21 @@ export default function NewCatchPage() {
     };
 
     fetchData();
-  }, [isClient, user, fetchSpots, fetchFishes, fetchBaits, fetchEvents]);
+  }, [
+    isClient,
+    user,
+    userCountryId,
+    fetchSpots,
+    fetchFishes,
+    fetchBaits,
+    fetchEvents,
+  ]);
 
   // Show loading state while checking authentication or fetching data
   if (
     !isClient ||
     loading ||
+    !userCountryId ||
     dataLoading ||
     fishesLoading ||
     baitsLoading ||

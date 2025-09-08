@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Heart,
@@ -38,20 +38,55 @@ interface SharedCatch {
       avatar: string | null;
     };
     createdAt: string;
+    updatedAt?: string;
   }>;
 }
 
 interface CatchDetailsProps {
   catch: SharedCatch;
+  currentUserId?: string;
 }
 
-const CatchDetails = ({ catch: catchData }: CatchDetailsProps) => {
+const CatchDetails = ({
+  catch: catchData,
+  currentUserId,
+}: CatchDetailsProps) => {
   const [isLiked, setIsLiked] = useState(catchData.isLiked);
   const [likes, setLikes] = useState(catchData.likes);
+  const [isLiking, setIsLiking] = useState(false);
+  const [comments, setComments] = useState(catchData.comments);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikes((prev) => (isLiked ? prev - 1 : prev + 1));
+  // Reset state when catch data changes
+  useEffect(() => {
+    setIsLiked(catchData.isLiked);
+    setLikes(catchData.likes);
+    setComments(catchData.comments);
+  }, [catchData.id, catchData.isLiked, catchData.likes, catchData.comments]);
+
+  const handleLike = async () => {
+    if (isLiking) return;
+
+    setIsLiking(true);
+    try {
+      const response = await fetch(`/api/catches/${catchData.id}/like`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsLiked(data.isLiked);
+        setLikes(data.likes);
+      } else {
+        console.error("Failed to toggle like");
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -150,25 +185,33 @@ const CatchDetails = ({ catch: catchData }: CatchDetailsProps) => {
         <div className="flex items-center gap-6 py-4 border-t border-gray-700/50">
           <button
             onClick={handleLike}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+            disabled={isLiking}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               isLiked
                 ? "bg-red-500/20 text-red-400 border border-red-500/30"
                 : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
             }`}
           >
-            <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
+            <Heart
+              className={`w-5 h-5 ${isLiked ? "fill-current" : ""} ${isLiking ? "animate-pulse" : ""}`}
+            />
             <span className="font-medium">{likes}</span>
           </button>
 
           <button className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 rounded-lg transition-colors">
             <MessageCircle className="w-5 h-5" />
-            <span className="font-medium">{catchData.comments.length}</span>
+            <span className="font-medium">{comments.length}</span>
           </button>
         </div>
       </div>
 
       {/* Comments Section */}
-      <CommentsSection comments={catchData.comments} />
+      <CommentsSection
+        comments={comments}
+        catchId={catchData.id}
+        currentUserId={currentUserId}
+        onCommentsUpdate={setComments}
+      />
     </div>
   );
 };

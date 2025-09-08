@@ -141,7 +141,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => router.push("/events/new")}
-                className="flex items-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-green-500/25 group"
+                className="flex items-center space-x-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-purple-500/25 group"
               >
                 <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-all duration-200">
                   <Calendar className="w-5 h-5" />
@@ -150,7 +150,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => router.push("/spots/new")}
-                className="flex items-center space-x-3 px-6 py-4 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-purple-500/25 group"
+                className="flex items-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-green-500/25 group"
               >
                 <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-all duration-200">
                   <MapPin className="w-5 h-5" />

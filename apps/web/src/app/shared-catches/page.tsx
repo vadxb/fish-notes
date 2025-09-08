@@ -33,6 +33,7 @@ interface SharedCatch {
       avatar: string | null;
     };
     createdAt: string;
+    updatedAt?: string;
   }>;
 }
 
@@ -51,6 +52,7 @@ const SharedCatchesPage = () => {
   );
   const [showFilter, setShowFilter] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   // Get current user ID
   const fetchCurrentUser = async () => {
@@ -168,10 +170,35 @@ const SharedCatchesPage = () => {
     setCurrentUserFromCatches();
   }, [allCatches]);
 
-  const handleCatchSelect = (catchId: string) => {
+  // Set selected user ID for testing
+  useEffect(() => {
+    if (allCatches.length > 0) {
+      // For testing, use the first user as the current user
+      setSelectedUserId(allCatches[0].user.id);
+    }
+  }, [allCatches]);
+
+  const handleCatchSelect = async (catchId: string) => {
     const selected = allCatches.find((c) => c.id === catchId);
     if (selected) {
-      setSelectedCatch(selected);
+      // Refresh the catch data to get current likes and comments
+      try {
+        const response = await fetch(`/api/shared-catches?limit=100`);
+        if (response.ok) {
+          const data = await response.json();
+          const updatedCatch = data.catches.find((c: any) => c.id === catchId);
+          if (updatedCatch) {
+            setSelectedCatch(updatedCatch);
+          } else {
+            setSelectedCatch(selected);
+          }
+        } else {
+          setSelectedCatch(selected);
+        }
+      } catch (error) {
+        console.error("Error refreshing catch data:", error);
+        setSelectedCatch(selected);
+      }
     }
   };
 
@@ -224,13 +251,36 @@ const SharedCatchesPage = () => {
             </h1>
           </div>
 
-          <button
-            onClick={() => setShowFilter(!showFilter)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors"
-          >
-            <Filter className="w-4 h-4 text-white" />
-            <span className="text-white">Filter</span>
-          </button>
+          <div className="flex items-center gap-4">
+            {/* User Selector for Testing */}
+            <select
+              value={selectedUserId || ""}
+              onChange={(e) => setSelectedUserId(e.target.value || null)}
+              className="px-4 py-2 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
+            >
+              <option value="">Select User (Testing)</option>
+              {Array.from(
+                new Map(
+                  allCatches.map((catchItem) => [
+                    catchItem.user.id,
+                    catchItem.user,
+                  ])
+                ).values()
+              ).map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.username}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors"
+            >
+              <Filter className="w-4 h-4 text-white" />
+              <span className="text-white">Filter</span>
+            </button>
+          </div>
         </div>
 
         {/* Filter Dropdown */}
@@ -248,7 +298,10 @@ const SharedCatchesPage = () => {
           {/* Main Content Area */}
           <div className="flex-1">
             {selectedCatch ? (
-              <CatchDetails catch={selectedCatch} />
+              <CatchDetails
+                catch={selectedCatch}
+                currentUserId={selectedUserId || undefined}
+              />
             ) : (
               <div className="text-center py-12 text-white/60">
                 <p>Select a catch to view details</p>

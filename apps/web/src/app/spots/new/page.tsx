@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSpotStore } from "@store/useSpotStore";
 import {
   SpotHeader,
@@ -49,13 +49,52 @@ export default function NewSpotPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [mapImage, setMapImage] = useState<string>("");
+  const [userCountryId, setUserCountryId] = useState<string | null>(null);
   const [selectedWaterBody, setSelectedWaterBody] = useState<WaterBody | null>(
     null
   );
 
+  // Fetch user profile to get country
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.countryId) {
+            setUserCountryId(userData.countryId);
+          } else {
+            // If no country set, default to Belarus
+            setUserCountryId("cmfb05q9j0000z5nzihd81gci"); // Belarus ID
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to Belarus if profile fetch fails
+        setUserCountryId("cmfb05q9j0000z5nzihd81gci");
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
   // Don't render if user is null (during logout)
   if (!user) {
     return null;
+  }
+
+  // Don't render form until user country is loaded
+  if (!userCountryId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <div className="text-white text-lg">Loading your country data...</div>
+        </div>
+      </div>
+    );
   }
 
   const handleInputChange = (
@@ -210,6 +249,7 @@ export default function NewSpotPage() {
                   formData={formData}
                   selectedWaterBody={selectedWaterBody}
                   isSubmitting={isSubmitting}
+                  countryId={userCountryId || undefined}
                   onInputChange={handleInputChange}
                   onWaterBodySelect={handleWaterBodySelect}
                   onGetCurrentLocation={getCurrentLocation}

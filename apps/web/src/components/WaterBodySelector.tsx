@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { X, MapPin, Search } from "lucide-react";
 
 interface WaterBody {
@@ -15,12 +15,14 @@ interface WaterBody {
 interface WaterBodySelectorProps {
   onSelect: (waterBody: WaterBody | null) => void;
   selectedWaterBody: WaterBody | null;
+  countryId?: string;
   className?: string;
 }
 
 export default function WaterBodySelector({
   onSelect,
   selectedWaterBody,
+  countryId,
   className = "",
 }: WaterBodySelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,29 +33,33 @@ export default function WaterBodySelector({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch water bodies
-  const fetchWaterBodies = async (search: string = "", type: string = "") => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (type) params.append("type", type);
+  const fetchWaterBodies = useCallback(
+    async (search: string = "", type: string = "") => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        if (type) params.append("type", type);
+        if (countryId) params.append("countryId", countryId);
 
-      const response = await fetch(`/api/water-bodies?${params}`);
-      if (response.ok) {
-        const data = await response.json();
-        setWaterBodies(data);
+        const response = await fetch(`/api/water-bodies?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setWaterBodies(data);
+        }
+      } catch (error) {
+        console.error("Error fetching water bodies:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching water bodies:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [countryId]
+  );
 
-  // Initial load
+  // Initial load and when countryId changes
   useEffect(() => {
     fetchWaterBodies();
-  }, []);
+  }, [countryId, fetchWaterBodies]);
 
   // Search and filter
   useEffect(() => {
@@ -220,7 +226,9 @@ export default function WaterBodySelector({
                   <MapPin className="w-8 h-8 mx-auto mb-2 text-gray-400" />
                   <div>No water bodies found</div>
                   <div className="text-sm text-gray-400">
-                    Try a different search term
+                    {countryId
+                      ? "No water bodies available for this country. Try selecting a different country or contact support to add water bodies for your region."
+                      : "Try a different search term"}
                   </div>
                 </div>
               ) : (

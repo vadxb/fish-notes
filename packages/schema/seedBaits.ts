@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const COUNTRY = "Belarus";
 
 export const belarusBait = [
   { commonName: "Worm", russianName: "Червь", imageUrl: "/baits/worm.png" },
@@ -49,22 +48,41 @@ export const belarusBait = [
   },
 ];
 
-async function seedBaits() {
-  const baitList = belarusBait; //await fetchFishByCountry(COUNTRY);
+export async function seedBaits() {
+  try {
+    // Get Belarus country
+    const belarus = await prisma.country.findFirst({
+      where: { code: "BY" },
+    });
 
-  const formatted = baitList.map((bait: any) => ({
-    commonName: bait.commonName,
-    country: COUNTRY,
-    imageUrl: bait.imageUrl || null,
-  }));
+    if (!belarus) {
+      throw new Error(
+        "Belarus country not found. Please run seedCountries first."
+      );
+    }
 
-  await prisma.Bait.createMany({
-    data: formatted,
-  });
+    const formatted = belarusBait.map((bait: any) => ({
+      commonName: bait.commonName,
+      countryId: belarus.id,
+      imageUrl: bait.imageUrl || null,
+    }));
 
-  console.log(`Seeded ${formatted.length} baits for ${COUNTRY}`);
+    await prisma.bait.createMany({
+      data: formatted,
+      skipDuplicates: true,
+    });
+  } catch (error) {
+    throw error;
+  }
 }
 
-seedBaits()
-  .catch((e) => console.error("Error seeding baits:", e))
-  .finally(() => prisma.$disconnect());
+// Run if called directly
+if (require.main === module) {
+  seedBaits()
+    .catch((e) => {
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

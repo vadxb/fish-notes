@@ -4,33 +4,50 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Check if default user already exists
-  const existingUser = await prisma.user.findUnique({
-    where: { email: "dev@email.com" },
-  });
-
-  if (!existingUser) {
+  try {
     // Hash the password
     const hashedPassword = await bcrypt.hash("12345678", 12);
 
-    // Create default user
-    const user = await prisma.user.create({
-      data: {
-        email: "dev@email.com",
-        name: "Dev",
-        password: hashedPassword,
-      },
+    // Check if first user already exists
+    const existingUser1 = await prisma.user.findUnique({
+      where: { email: "dev@email.com" },
     });
 
-    console.log("Default user created:", user);
-  } else {
-    console.log("Default user already exists");
+    if (!existingUser1) {
+      // Create first user
+      await prisma.user.create({
+        data: {
+          email: "dev@email.com",
+          name: "Dev",
+          username: "Dev",
+          password: hashedPassword,
+        },
+      });
+    }
+
+    // Check if second user already exists
+    const existingUser2 = await prisma.user.findUnique({
+      where: { email: "dev2@email.com" },
+    });
+
+    if (!existingUser2) {
+      // Create second user
+      await prisma.user.create({
+        data: {
+          email: "dev2@email.com",
+          name: "User2",
+          username: "User2",
+          password: hashedPassword,
+        },
+      });
+    }
+  } catch (error) {
+    throw error;
   }
 }
 
 main()
   .catch((e) => {
-    console.error(e);
     process.exit(1);
   })
   .finally(async () => {

@@ -68,11 +68,13 @@ export default function CatchDetailPage({
   const [error, setError] = useState("");
   const [catch_, setCatch] = useState<Catch | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
+  const [userCountryId, setUserCountryId] = useState<string | null>(null);
   const [showFishDropdown, setShowFishDropdown] = useState(false);
   const [showBaitDropdown, setShowBaitDropdown] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [fileErrors, setFileErrors] = useState<string[]>([]);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [photosToRemove, setPhotosToRemove] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,9 +104,35 @@ export default function CatchDetailPage({
     setIsClient(true);
   }, []);
 
-  // Fetch catch data and related data
+  // Fetch user profile to get country
   useEffect(() => {
     if (!isClient || !user) return;
+
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.countryId) {
+            setUserCountryId(userData.countryId);
+          } else {
+            // If no country set, default to Belarus
+            setUserCountryId("cmfb05q9j0000z5nzihd81gci"); // Belarus ID
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to Belarus if profile fetch fails
+        setUserCountryId("cmfb05q9j0000z5nzihd81gci");
+      }
+    };
+
+    fetchUserProfile();
+  }, [isClient, user]);
+
+  // Fetch catch data and related data
+  useEffect(() => {
+    if (!isClient || !user || !userCountryId) return;
 
     const fetchData = async () => {
       try {
@@ -141,6 +169,10 @@ export default function CatchDetailPage({
               : "",
           });
 
+          // Reset photo removal state when loading new catch
+          setPhotosToRemove([]);
+          setSelectedFiles([]);
+
           // If the catch has an eventId, fetch the event details
           if (catchData.eventId) {
             try {
@@ -167,11 +199,11 @@ export default function CatchDetailPage({
           setError("Catch not found");
         }
 
-        // Fetch related data for editing
+        // Fetch related data for editing with user's country
         await Promise.all([
           fetchSpots(),
-          fetchFishes(),
-          fetchBaits(),
+          fetchFishes(userCountryId),
+          fetchBaits(userCountryId),
           fetchEvents(),
         ]);
       } catch (error) {
@@ -183,7 +215,7 @@ export default function CatchDetailPage({
     };
 
     fetchData();
-  }, [isClient, user, id]);
+  }, [isClient, user, userCountryId, id]);
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -337,6 +369,14 @@ export default function CatchDetailPage({
     });
   };
 
+  const removeExistingPhoto = (photoUrl: string) => {
+    setPhotosToRemove((prev) => [...prev, photoUrl]);
+  };
+
+  const undoRemovePhoto = (photoUrl: string) => {
+    setPhotosToRemove((prev) => prev.filter((url) => url !== photoUrl));
+  };
+
   const validateFile = (file: File): string | null => {
     // Check file type
     if (!file.type.startsWith("image/")) {
@@ -413,13 +453,17 @@ export default function CatchDetailPage({
         newPhotoUrls = uploadData.urls;
       }
 
-      // Combine existing photos with new ones
+      // Combine existing photos with new ones, excluding removed photos
       const existingPhotoUrls = catch_?.photoUrls || [];
       // Ensure existingPhotoUrls is an array
       const existingArray = Array.isArray(existingPhotoUrls)
         ? existingPhotoUrls
         : [];
-      const allPhotoUrls = [...existingArray, ...newPhotoUrls];
+      // Filter out photos marked for removal
+      const remainingPhotos = existingArray.filter(
+        (photoUrl) => !photosToRemove.includes(photoUrl)
+      );
+      const allPhotoUrls = [...remainingPhotos, ...newPhotoUrls];
 
       const submitData = {
         species: formData.species || formData.speciesText,
@@ -489,7 +533,7 @@ export default function CatchDetailPage({
   };
 
   // Show loading state
-  if (!isClient || loading || dataLoading) {
+  if (!isClient || loading || !userCountryId || dataLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
@@ -759,25 +803,64 @@ export default function CatchDetailPage({
                 icon={Camera}
               >
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {catch_.photoUrls.map((photoUrl, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={photoUrl}
-                        alt={`${catch_.species} catch ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-xl border border-gray-700/50 shadow-lg"
-                      />
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-xl flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => openImageModal(index)}
-                          className="opacity-0 group-hover:opacity-100 bg-white bg-opacity-90 hover:bg-opacity-100 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200"
-                        >
-                          View Full Size
-                        </button>
+                  {catch_.photoUrls
+                    .filter((photoUrl) => !photosToRemove.includes(photoUrl))
+                    .map((photoUrl, index) => (
+                      <div key={photoUrl} className="relative group">
+                        <img
+                          src={photoUrl}
+                          alt={`${catch_.species} catch ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-xl border border-gray-700/50 shadow-lg"
+                        />
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-xl flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 flex gap-2 transition-all duration-200">
+                            <button
+                              type="button"
+                              onClick={() => openImageModal(index)}
+                              className="bg-white bg-opacity-90 hover:bg-opacity-100 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200"
+                            >
+                              View
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeExistingPhoto(photoUrl)}
+                              className="bg-red-500 bg-opacity-90 hover:bg-opacity-100 text-white px-3 py-1 rounded-full text-sm font-medium transition-all duration-200"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
+                {/* Show removed photos with undo option */}
+                {photosToRemove.length > 0 && (
+                  <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <p className="text-red-400 text-sm font-medium mb-2">
+                      Photos marked for removal ({photosToRemove.length}):
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {photosToRemove.map((photoUrl) => (
+                        <div
+                          key={photoUrl}
+                          className="flex items-center gap-2 bg-red-500/20 px-3 py-1 rounded-lg"
+                        >
+                          <span className="text-red-300 text-xs truncate max-w-32">
+                            {photoUrl.split("/").pop()}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => undoRemovePhoto(photoUrl)}
+                            className="text-red-300 hover:text-red-200 text-xs font-medium"
+                          >
+                            Undo
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </FormSection>
             )}
           </form>

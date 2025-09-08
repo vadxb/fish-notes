@@ -9,6 +9,8 @@ import {
   Weight,
   Heart,
   ArrowRight,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter } from "next/navigation";
@@ -38,6 +40,7 @@ const Leaderboard = () => {
   >({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const periods = [{ key: "day", label: "Today", icon: "🌅" }];
 
@@ -231,57 +234,76 @@ const Leaderboard = () => {
             </p>
           </div>
         </div>
-        <button
-          onClick={() => router.push("/rankings")}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
-        >
-          <span className="text-sm">See all rankings</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gray-700/50 text-white rounded-xl hover:bg-gray-700/70 transition-all duration-200"
+          >
+            <span className="text-sm">
+              {isExpanded ? "Collapse" : "Expand"}
+            </span>
+            {isExpanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+          <button
+            onClick={() => router.push("/rankings")}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600/20 text-white rounded-xl hover:bg-blue-600/30 transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+          >
+            <span className="text-sm">See all rankings</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Content */}
-      {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
-            <p className="text-gray-300">Loading rankings...</p>
-          </div>
-        </div>
-      ) : error ? (
-        <div className="text-center py-8">
-          <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg w-fit mx-auto mb-4">
-            <Trophy className="w-8 h-8 text-red-400" />
-          </div>
-          <p className="text-red-300 mb-4">Error: {error}</p>
-          <button
-            onClick={fetchAllLeaderboards}
-            className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200"
-          >
-            Retry
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {periods.map((period) =>
-            metrics.map((metric) => {
-              const key = `${period.key}-${metric.key}`;
-              const data = leaderboards[key];
-              return data
-                ? renderLeaderboardSection(period.key, metric.key, data)
-                : null;
-            })
-          )}
-
-          {Object.keys(leaderboards).length === 0 && (
-            <div className="text-center py-8">
-              <div className="p-4 bg-gray-700/50 rounded-lg w-fit mx-auto mb-4">
-                <Trophy className="w-8 h-8 text-gray-400" />
+      {isExpanded && (
+        <>
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+                <p className="text-gray-300">Loading rankings...</p>
               </div>
-              <p className="text-gray-400">No leaderboard data available</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg w-fit mx-auto mb-4">
+                <Trophy className="w-8 h-8 text-red-400" />
+              </div>
+              <p className="text-red-300 mb-4">Error: {error}</p>
+              <button
+                onClick={fetchAllLeaderboards}
+                className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {periods.map((period) =>
+                metrics.map((metric) => {
+                  const key = `${period.key}-${metric.key}`;
+                  const data = leaderboards[key];
+                  return data
+                    ? renderLeaderboardSection(period.key, metric.key, data)
+                    : null;
+                })
+              )}
+
+              {Object.keys(leaderboards).length === 0 && (
+                <div className="text-center py-8">
+                  <div className="p-4 bg-gray-700/50 rounded-lg w-fit mx-auto mb-4">
+                    <Trophy className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-400">No leaderboard data available</p>
+                </div>
+              )}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

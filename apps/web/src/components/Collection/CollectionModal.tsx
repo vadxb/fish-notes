@@ -5,7 +5,11 @@ interface CollectionItem {
   id: string;
   commonName: string;
   scientificName?: string;
-  country: string;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+  };
   habitat?: string | null;
   imageUrl: string | null;
 }
@@ -73,7 +77,7 @@ export default function CollectionModal({
                 <h3 className="text-sm font-medium text-gray-400 mb-2">
                   Country
                 </h3>
-                <p className="text-lg text-white">{item.country}</p>
+                <p className="text-lg text-white">{item.country.name}</p>
               </div>
 
               {item.habitat && (

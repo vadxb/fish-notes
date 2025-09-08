@@ -20,6 +20,7 @@ interface SpotDetailsFormProps {
   };
   selectedWaterBody: WaterBody | null;
   isSubmitting: boolean;
+  countryId?: string;
   onInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
@@ -31,6 +32,7 @@ export default function SpotDetailsForm({
   formData,
   selectedWaterBody,
   isSubmitting,
+  countryId,
   onInputChange,
   onWaterBodySelect,
   onGetCurrentLocation,
@@ -55,6 +57,7 @@ export default function SpotDetailsForm({
         <WaterBodySelector
           onSelect={onWaterBodySelect}
           selectedWaterBody={selectedWaterBody}
+          countryId={countryId}
         />
 
         {/* Spot Name */}

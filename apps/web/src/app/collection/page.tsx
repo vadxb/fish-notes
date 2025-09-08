@@ -13,7 +13,12 @@ interface FishData {
   id: string;
   commonName: string;
   scientificName: string;
-  country: string;
+  countryId: string;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+  };
   habitat: string | null;
   imageUrl: string | null;
 }
@@ -21,7 +26,12 @@ interface FishData {
 interface BaitData {
   id: string;
   commonName: string;
-  country: string;
+  countryId: string;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+  };
   imageUrl: string | null;
 }
 
@@ -35,51 +45,141 @@ export default function CollectionPage() {
   const [selectedBait, setSelectedBait] = useState<BaitData | null>(null);
   const [fishes, setFishes] = useState<FishData[]>([]);
   const [baits, setBaits] = useState<BaitData[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [fishesLoading, setFishesLoading] = useState(false);
+  const [baitsLoading, setBaitsLoading] = useState(false);
+  const [userCountryId, setUserCountryId] = useState<string | null>(null);
+  const [countries, setCountries] = useState<
+    Array<{ id: string; name: string; code: string }>
+  >([]);
 
   // Ensure we're on the client side to avoid hydration mismatch
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Fetch fishes and baits data
+  // Fetch all countries
+  useEffect(() => {
+    if (!isClient) return;
+
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch("/api/countries");
+        if (response.ok) {
+          const countriesData = await response.json();
+          setCountries(countriesData);
+        }
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    fetchCountries();
+  }, [isClient]);
+
+  // Fetch user profile to get country
   useEffect(() => {
     if (!isClient || !user) return;
 
-    const fetchData = async () => {
+    const fetchUserProfile = async () => {
       try {
-        setDataLoading(true);
-
-        // Fetch fishes
-        const fishesResponse = await fetch("/api/fishes");
-        if (fishesResponse.ok) {
-          const fishesData = await fishesResponse.json();
-          setFishes(fishesData);
-        }
-
-        // Fetch baits
-        const baitsResponse = await fetch("/api/baits");
-        if (baitsResponse.ok) {
-          const baitsData = await baitsResponse.json();
-          setBaits(baitsData);
+        const response = await fetch("/api/profile");
+        if (response.ok) {
+          const userData = await response.json();
+          if (userData.countryId) {
+            setUserCountryId(userData.countryId);
+            setSelectedCountry(userData.country?.name || "Belarus");
+          } else {
+            // If no country set, default to Belarus
+            setUserCountryId("cmfb05q9j0000z5nzihd81gci"); // Belarus ID
+            setSelectedCountry("Belarus");
+          }
         }
       } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Fallback to Belarus if profile fetch fails
+        setUserCountryId("cmfb05q9j0000z5nzihd81gci");
+        setSelectedCountry("Belarus");
+      }
+    };
+
+    fetchUserProfile();
+  }, [isClient, user]);
+
+  // Fetch fishes and baits data when country changes
+  useEffect(() => {
+    if (!isClient || !selectedCountry || countries.length === 0) return;
+
+    const fetchData = async () => {
+      try {
+        // Find the country ID for the selected country name
+        const selectedCountryData = countries.find(
+          (country) => country.name === selectedCountry
+        );
+
+        if (!selectedCountryData) {
+          console.error("Selected country not found in countries list");
+          return;
+        }
+
+        // Fetch fishes and baits in parallel with separate loading states
+        const [fishesResponse, baitsResponse] = await Promise.all([
+          fetch(`/api/fishes?countryId=${selectedCountryData.id}`).then(
+            async (res) => {
+              setFishesLoading(true);
+              if (res.ok) {
+                const data = await res.json();
+                setFishes(data);
+              }
+              setFishesLoading(false);
+            }
+          ),
+          fetch(`/api/baits?countryId=${selectedCountryData.id}`).then(
+            async (res) => {
+              setBaitsLoading(true);
+              if (res.ok) {
+                const data = await res.json();
+                setBaits(data);
+              }
+              setBaitsLoading(false);
+            }
+          ),
+        ]);
+      } catch (error) {
         console.error("Error fetching collection data:", error);
-      } finally {
-        setDataLoading(false);
+        setFishesLoading(false);
+        setBaitsLoading(false);
       }
     };
 
     fetchData();
-  }, [isClient, user]);
+  }, [isClient, selectedCountry, countries]);
 
-  // Show loading state while checking authentication or fetching data
-  if (!isClient || loading || dataLoading) {
+  // Show loading state while checking authentication
+  if (!isClient || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading collection...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if countries haven't loaded or no country selected
+  if (countries.length === 0 || !selectedCountry) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg w-fit mx-auto mb-4">
+            <Fish className="w-8 h-8 text-blue-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-white mb-2">
+            Loading Countries
+          </h2>
+          <p className="text-gray-400 mb-6">
+            Loading available countries and collection data...
+          </p>
         </div>
       </div>
     );
@@ -95,7 +195,7 @@ export default function CollectionPage() {
     const matchesSearch =
       fish.commonName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fish.scientificName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCountry = fish.country === selectedCountry;
+    const matchesCountry = fish.country.name === selectedCountry;
     return matchesSearch && matchesCountry;
   });
 
@@ -103,7 +203,7 @@ export default function CollectionPage() {
     const matchesSearch = bait.commonName
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    const matchesCountry = bait.country === selectedCountry;
+    const matchesCountry = bait.country.name === selectedCountry;
     return matchesSearch && matchesCountry;
   });
 
@@ -122,6 +222,7 @@ export default function CollectionPage() {
             onSearchChange={setSearchQuery}
             selectedCountry={selectedCountry}
             onCountryChange={setSelectedCountry}
+            countries={countries}
             onBack={() => router.back()}
           />
 
@@ -135,6 +236,7 @@ export default function CollectionPage() {
               onItemClick={setSelectedFish}
               emptyMessage="No fish species available"
               searchQuery={searchQuery}
+              loading={fishesLoading}
             />
 
             {/* Bait Collection */}
@@ -145,6 +247,7 @@ export default function CollectionPage() {
               onItemClick={setSelectedBait}
               emptyMessage="No baits available"
               searchQuery={searchQuery}
+              loading={baitsLoading}
             />
           </div>
 

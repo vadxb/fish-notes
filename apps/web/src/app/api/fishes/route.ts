@@ -5,8 +5,21 @@ const prisma = new PrismaClient();
 
 export async function GET(request: NextRequest) {
   try {
-    const fishes = await prisma.Fish.findMany({
-      orderBy: [{ country: "asc" }, { commonName: "asc" }],
+    const { searchParams } = new URL(request.url);
+    const countryId = searchParams.get("countryId");
+
+    const fishes = await prisma.fish.findMany({
+      where: countryId ? { countryId } : undefined,
+      include: {
+        country: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+      },
+      orderBy: [{ country: { name: "asc" } }, { commonName: "asc" }],
     });
 
     return NextResponse.json(fishes);

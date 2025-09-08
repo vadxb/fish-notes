@@ -47,11 +47,44 @@ export async function GET(request: NextRequest) {
             startAt: true,
           },
         },
+        likes: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+        catchComments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                name: true,
+                avatar: true,
+              },
+            },
+          },
+          orderBy: { createdAt: "asc" },
+        },
       },
       orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
     });
+
+    // Get current user ID for like status - for now using first user as default
+    // TODO: Implement proper authentication
+    const currentUser = await prisma.user.findFirst({
+      where: { email: "dev@email.com" },
+    });
+
+    const currentUserId = currentUser?.id || null;
 
     // Transform data to match frontend interface
     const transformedCatches = catches.map((catchItem) => ({
@@ -77,9 +110,19 @@ export async function GET(request: NextRequest) {
         username: catchItem.user.username || catchItem.user.name || "Anonymous",
         avatar: catchItem.user.avatar,
       },
-      likes: 0, // Will be implemented later
-      isLiked: false, // Will be implemented later
-      comments: [], // Will be implemented later
+      likes: catchItem.likes.length,
+      isLiked: catchItem.likes.some((like) => like.user.id === currentUserId),
+      comments: catchItem.catchComments.map((comment) => ({
+        id: comment.id,
+        content: comment.content,
+        user: {
+          id: comment.user.id,
+          username: comment.user.username || comment.user.name || "Anonymous",
+          avatar: comment.user.avatar,
+        },
+        createdAt: comment.createdAt.toISOString(),
+        updatedAt: comment.updatedAt.toISOString(),
+      })),
     }));
 
     return NextResponse.json({

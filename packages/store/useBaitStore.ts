@@ -3,7 +3,12 @@ import { create } from "zustand";
 interface Bait {
   id: string;
   commonName: string;
-  country: string;
+  countryId: string;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+  };
   imageUrl?: string;
   createdAt: string;
 }
@@ -12,7 +17,7 @@ interface BaitStore {
   baits: Bait[];
   loading: boolean;
   error: string | null;
-  fetchBaits: () => Promise<void>;
+  fetchBaits: (countryId?: string) => Promise<void>;
 }
 
 export const useBaitStore = create<BaitStore>((set, get) => ({
@@ -20,16 +25,14 @@ export const useBaitStore = create<BaitStore>((set, get) => ({
   loading: false,
   error: null,
 
-  fetchBaits: async () => {
-    // Don't fetch if already loading or if we have data
-    if (get().loading || get().baits.length > 0) {
-      return;
-    }
-
+  fetchBaits: async (countryId?: string) => {
     set({ loading: true, error: null });
 
     try {
-      const response = await fetch("/api/baits");
+      const url = countryId
+        ? `/api/baits?countryId=${countryId}`
+        : "/api/baits";
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch baits: ${response.status}`);

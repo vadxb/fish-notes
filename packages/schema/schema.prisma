@@ -16,11 +16,15 @@ model User {
   avatar          String?     // URL to avatar image
   subscription    String      @default("free") // "free" or "premium"
   premiumExpiresAt DateTime?  // When premium subscription expires
+  countryId       String?
   createdAt       DateTime    @default(now())
   updatedAt       DateTime?   @updatedAt
   catches         Catch[]
   events          FishEvent[]
   spots           Spot[]
+  catchLikes      CatchLike[]
+  catchComments   CatchComment[]
+  country         Country?    @relation(fields: [countryId], references: [id])
 }
 
 model Catch {
@@ -41,6 +45,8 @@ model Catch {
   event                 FishEvent? @relation(fields: [eventId], references: [id])
   user                  User       @relation(fields: [userId], references: [id])
   spot                  Spot?      @relation(fields: [spotId], references: [id])
+  likes                 CatchLike[]
+  catchComments         CatchComment[]
 }
 
 model Spot {
@@ -65,28 +71,34 @@ model WaterBody {
   type      String
   latitude  Float
   longitude Float
-  country   String
+  countryId String
   region    String?
   geometry  Json?
   createdAt DateTime @default(now())
+  
+  country   Country  @relation(fields: [countryId], references: [id])
 }
 
 model Fish {
   id             String   @id @default(cuid())
   commonName     String
   scientificName String
-  country        String
+  countryId      String
   habitat        String?
   imageUrl       String?
   createdAt      DateTime @default(now())
+  
+  country        Country  @relation(fields: [countryId], references: [id])
 }
 
 model Bait {
   id         String   @id @default(cuid())
   commonName String
-  country    String
+  countryId  String
   imageUrl   String?
   createdAt  DateTime @default(now())
+  
+  country    Country  @relation(fields: [countryId], references: [id])
 }
 
 model FishEvent {
@@ -104,4 +116,40 @@ model FishEvent {
   catches               Catch[]
   spot                  Spot?     @relation(fields: [spotId], references: [id])
   user                  User      @relation(fields: [userId], references: [id])
+}
+
+model CatchLike {
+  id        String   @id @default(cuid())
+  userId    String
+  catchId   String
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id])
+  catch     Catch    @relation(fields: [catchId], references: [id])
+  
+  @@unique([userId, catchId])
+}
+
+model CatchComment {
+  id        String   @id @default(cuid())
+  userId    String
+  catchId   String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user      User     @relation(fields: [userId], references: [id])
+  catch     Catch    @relation(fields: [catchId], references: [id])
+}
+
+model Country {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  code      String   @unique // ISO country code (e.g., "BY", "US")
+  createdAt DateTime @default(now())
+  
+  users     User[]
+  fishes    Fish[]
+  baits     Bait[]
+  waterBodies WaterBody[]
 }

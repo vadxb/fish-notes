@@ -21,8 +21,20 @@ interface UserProfile {
   avatar?: string;
   subscription: "free" | "premium";
   premiumExpiresAt?: string;
+  countryId?: string;
+  country?: {
+    id: string;
+    name: string;
+    code: string;
+  };
   createdAt: string;
   updatedAt?: string;
+}
+
+interface Country {
+  id: string;
+  name: string;
+  code: string;
 }
 
 export default function ProfilePage() {
@@ -41,14 +53,33 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: "",
     username: "",
+    countryId: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const [countries, setCountries] = useState<Country[]>([]);
 
   // Ensure we're on the client side
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // Fetch countries
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch("/api/countries");
+        if (response.ok) {
+          const countriesData = await response.json();
+          setCountries(countriesData);
+        }
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    fetchCountries();
   }, []);
 
   // Fetch user profile
@@ -64,6 +95,7 @@ export default function ProfilePage() {
           setFormData({
             name: userData.name || "",
             username: userData.username || "",
+            countryId: userData.countryId || "",
             currentPassword: "",
             newPassword: "",
             confirmPassword: "",
@@ -97,7 +129,9 @@ export default function ProfilePage() {
     return null;
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -325,11 +359,13 @@ export default function ProfilePage() {
       const updateData: {
         name: string;
         username: string;
+        countryId?: string;
         currentPassword?: string;
         newPassword?: string;
       } = {
         name: formData.name,
         username: formData.username,
+        countryId: formData.countryId || undefined,
       };
 
       if (formData.newPassword) {
@@ -417,6 +453,7 @@ export default function ProfilePage() {
         <ProfileForm
           profile={profile}
           formData={formData}
+          countries={countries}
           isSubmitting={isSubmitting}
           onInputChange={handleInputChange}
           onSubmit={handleProfileUpdate}

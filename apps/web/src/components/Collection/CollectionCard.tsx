@@ -5,7 +5,11 @@ interface CollectionItem {
   id: string;
   commonName: string;
   scientificName?: string;
-  country: string;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+  };
   habitat?: string | null;
   imageUrl: string | null;
 }
@@ -17,6 +21,7 @@ interface CollectionCardProps {
   onItemClick: (item: CollectionItem) => void;
   emptyMessage: string;
   searchQuery: string;
+  loading?: boolean;
 }
 
 export default function CollectionCard({
@@ -26,6 +31,7 @@ export default function CollectionCard({
   onItemClick,
   emptyMessage,
   searchQuery,
+  loading = false,
 }: CollectionCardProps) {
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
@@ -41,7 +47,12 @@ export default function CollectionCard({
       </div>
 
       {/* Content */}
-      {items.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading {title.toLowerCase()}...</p>
+        </div>
+      ) : items.length === 0 ? (
         <div className="text-center py-12">
           <div className="mx-auto w-16 h-16 bg-gray-700/50 rounded-full flex items-center justify-center mb-4">
             {icon}
@@ -89,7 +100,7 @@ export default function CollectionCard({
                   </p>
                 )}
                 <p className="text-xs text-blue-400 capitalize">
-                  {item.habitat || item.country}
+                  {item.habitat || item.country.name}
                 </p>
               </div>
             </div>

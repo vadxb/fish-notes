@@ -8,11 +8,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
     const type = searchParams.get("type");
+    const countryId = searchParams.get("countryId");
 
     // Build where clause
     const where: {
       name?: { contains: string };
       type?: string;
+      countryId?: string;
     } = {};
 
     if (search) {
@@ -25,8 +27,21 @@ export async function GET(request: NextRequest) {
       where.type = type;
     }
 
+    if (countryId) {
+      where.countryId = countryId;
+    }
+
     const waterBodies = await prisma.waterBody.findMany({
       where,
+      include: {
+        country: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+      },
       orderBy: {
         name: "asc",
       },
@@ -40,5 +55,7 @@ export async function GET(request: NextRequest) {
       { error: "Failed to fetch water bodies" },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }

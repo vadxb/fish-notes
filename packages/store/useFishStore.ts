@@ -4,7 +4,12 @@ interface Fish {
   id: string;
   commonName: string;
   scientificName: string;
-  country: string;
+  countryId: string;
+  country: {
+    id: string;
+    name: string;
+    code: string;
+  };
   habitat?: string;
   imageUrl?: string;
   createdAt: string;
@@ -14,7 +19,7 @@ interface FishStore {
   fishes: Fish[];
   loading: boolean;
   error: string | null;
-  fetchFishes: () => Promise<void>;
+  fetchFishes: (countryId?: string) => Promise<void>;
 }
 
 export const useFishStore = create<FishStore>((set, get) => ({
@@ -22,16 +27,14 @@ export const useFishStore = create<FishStore>((set, get) => ({
   loading: false,
   error: null,
 
-  fetchFishes: async () => {
-    // Don't fetch if already loading or if we have data
-    if (get().loading || get().fishes.length > 0) {
-      return;
-    }
-
+  fetchFishes: async (countryId?: string) => {
     set({ loading: true, error: null });
 
     try {
-      const response = await fetch("/api/fishes");
+      const url = countryId
+        ? `/api/fishes?countryId=${countryId}`
+        : "/api/fishes";
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch fishes: ${response.status}`);

@@ -11,6 +11,7 @@ import {
   EventSearchBar,
   EventEmptyState,
   EventHeader,
+  EventCalendar,
 } from "@web/components/Events";
 
 export default function EventsPage() {
@@ -195,17 +196,14 @@ export default function EventsPage() {
               </div>
             )
           ) : (
-            /* Calendar View - Coming Soon */
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-12 text-center">
-              <div className="mx-auto w-24 h-24 bg-gray-700/50 rounded-full flex items-center justify-center mb-6">
-                <CalendarDays className="w-12 h-12 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
-                Calendar View Coming Soon
-              </h3>
-              <p className="text-gray-400">
-                We&apos;re working on a calendar view for your events.
-              </p>
+            /* Calendar View */
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
+              <EventCalendar
+                events={filteredEvents}
+                onEventClick={(event) => router.push(`/events/${event.id}`)}
+                onEventEdit={(eventId) => router.push(`/events/${eventId}`)}
+                onEventDelete={handleDeleteEvent}
+              />
             </div>
           )}
 

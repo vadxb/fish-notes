@@ -5,6 +5,7 @@ interface CollectionHeaderProps {
   onSearchChange: (query: string) => void;
   selectedCountry: string;
   onCountryChange: (country: string) => void;
+  countries: Array<{ id: string; name: string; code: string }>;
   onBack?: () => void;
 }
 
@@ -13,6 +14,7 @@ export default function CollectionHeader({
   onSearchChange,
   selectedCountry,
   onCountryChange,
+  countries,
   onBack,
 }: CollectionHeaderProps) {
   return (
@@ -55,7 +57,11 @@ export default function CollectionHeader({
             onChange={(e) => onCountryChange(e.target.value)}
             className="px-4 py-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
           >
-            <option value="Belarus">Belarus</option>
+            {countries.map((country) => (
+              <option key={country.id} value={country.name}>
+                {country.name}
+              </option>
+            ))}
           </select>
         </div>
       </div>

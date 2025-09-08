@@ -66,7 +66,7 @@ export default function FavoriteSpotsCard({
                 e.stopPropagation();
                 router.push("/spots/new");
               }}
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 shadow-lg hover:shadow-yellow-500/25"
+              className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-green-500/25"
             >
               Add First Spot
             </button>

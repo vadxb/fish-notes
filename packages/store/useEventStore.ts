@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface Event {
+export interface Event {
   id: string;
   title: string;
   notes?: string;

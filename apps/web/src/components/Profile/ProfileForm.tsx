@@ -8,13 +8,26 @@ interface UserProfile {
   avatar?: string;
   subscription: "free" | "premium";
   premiumExpiresAt?: string;
+  countryId?: string;
+  country?: {
+    id: string;
+    name: string;
+    code: string;
+  };
   createdAt: string;
   updatedAt?: string;
+}
+
+interface Country {
+  id: string;
+  name: string;
+  code: string;
 }
 
 interface FormData {
   name: string;
   username: string;
+  countryId: string;
   currentPassword: string;
   newPassword: string;
   confirmPassword: string;
@@ -23,14 +36,18 @@ interface FormData {
 interface ProfileFormProps {
   profile: UserProfile;
   formData: FormData;
+  countries: Country[];
   isSubmitting: boolean;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onInputChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
 export default function ProfileForm({
   profile,
   formData,
+  countries,
   isSubmitting,
   onInputChange,
   onSubmit,
@@ -87,6 +104,29 @@ export default function ProfileForm({
               className="w-full px-4 py-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
               placeholder="Choose a username"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="countryId"
+              className="block text-sm font-medium text-gray-300 mb-2"
+            >
+              Country
+            </label>
+            <select
+              id="countryId"
+              name="countryId"
+              value={formData.countryId}
+              onChange={onInputChange}
+              className="w-full px-4 py-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
+            >
+              <option value="">Select your country</option>
+              {countries.map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>

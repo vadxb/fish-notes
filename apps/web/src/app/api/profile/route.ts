@@ -27,6 +27,14 @@ export async function GET(request: NextRequest) {
         avatar: true,
         subscription: true,
         premiumExpiresAt: true,
+        countryId: true,
+        country: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -61,7 +69,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, username, avatar, currentPassword, newPassword } = body;
+    const { name, username, avatar, countryId, currentPassword, newPassword } =
+      body;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -98,6 +107,10 @@ export async function PUT(request: NextRequest) {
 
     if (avatar !== undefined) {
       updateData.avatar = avatar;
+    }
+
+    if (countryId !== undefined) {
+      updateData.countryId = countryId;
     }
 
     // Handle password change
@@ -139,6 +152,14 @@ export async function PUT(request: NextRequest) {
         avatar: true,
         subscription: true,
         premiumExpiresAt: true,
+        countryId: true,
+        country: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
