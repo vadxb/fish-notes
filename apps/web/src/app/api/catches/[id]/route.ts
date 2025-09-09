@@ -225,10 +225,10 @@ export async function DELETE(
         where: { catchId: id },
       });
 
-      // Update any events that reference this catch
-      await tx.fishEvent.updateMany({
-        where: { catches: { some: { id } } },
-        data: { catches: { disconnect: { id } } },
+      // Update the catch to remove event reference
+      await tx.catch.update({
+        where: { id },
+        data: { eventId: null },
       });
 
       // Finally delete the catch
