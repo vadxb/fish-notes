@@ -4,7 +4,7 @@ import "./globals.css";
 import dynamic from "next/dynamic";
 
 // Dynamically import ClientLayout to prevent SSR issues
-const ClientLayout = dynamic(() => import("@web/components/ClientLayout"), {
+const ClientLayout = dynamic(() => import("../components/ClientLayout"), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
