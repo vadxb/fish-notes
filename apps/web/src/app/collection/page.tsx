@@ -241,7 +241,15 @@ export default function CollectionPage() {
               title="Fish Species"
               icon={<Fish className="w-5 h-5 text-blue-400" />}
               items={filteredFishes}
-              onItemClick={setSelectedFish}
+              onItemClick={(item) => setSelectedFish({
+                id: item.id,
+                commonName: item.commonName,
+                scientificName: item.scientificName || "",
+                countryId: item.country.id,
+                country: item.country,
+                habitat: item.habitat,
+                imageUrl: item.imageUrl
+              })}
               emptyMessage="No fish species available"
               searchQuery={searchQuery}
               loading={fishesLoading}
@@ -252,7 +260,13 @@ export default function CollectionPage() {
               title="Fishing Baits"
               icon={<Bug className="w-5 h-5 text-green-400" />}
               items={filteredBaits}
-              onItemClick={setSelectedBait}
+              onItemClick={(item) => setSelectedBait({
+                id: item.id,
+                commonName: item.commonName,
+                countryId: item.country.id,
+                country: item.country,
+                imageUrl: item.imageUrl
+              })}
               emptyMessage="No baits available"
               searchQuery={searchQuery}
               loading={baitsLoading}
