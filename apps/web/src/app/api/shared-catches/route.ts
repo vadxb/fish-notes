@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     const currentUserId = currentUser?.id || null;
 
     // Transform data to match frontend interface
-    const transformedCatches = catches.map((catchItem) => ({
+    const transformedCatches = catches.map((catchItem: any) => ({
       id: catchItem.id,
       title: `${catchItem.species} Catch`,
       description:
