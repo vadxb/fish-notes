@@ -1,24 +1,63 @@
-import Link from "next/link";
-
 export default function NotFound() {
   return (
     <html lang="en">
       <head>
         <title>404 - Page Not Found</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style jsx>{`
+          body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+          .container {
+            text-align: center;
+            color: white;
+          }
+          .title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+          }
+          .subtitle {
+            font-size: 1.5rem;
+            color: #d1d5db;
+            margin-bottom: 2rem;
+          }
+          .description {
+            color: #9ca3af;
+            margin-bottom: 2rem;
+          }
+          .link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+          }
+          .link:hover {
+            background: rgba(59, 130, 246, 0.3);
+          }
+        `}</style>
       </head>
-      <body className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-6xl font-bold text-white mb-4">404</h1>
-          <h2 className="text-2xl text-gray-300 mb-8">Page Not Found</h2>
-          <p className="text-gray-400 mb-8">
+      <body>
+        <div className="container">
+          <h1 className="title">404</h1>
+          <h2 className="subtitle">Page Not Found</h2>
+          <p className="description">
             The page you&apos;re looking for doesn&apos;t exist.
           </p>
-          <Link
-            href="/"
-            className="inline-flex items-center px-6 py-3 bg-blue-600/20 text-blue-300 rounded-lg hover:bg-blue-600/30 transition-colors"
-          >
+          <a href="/" className="link">
             Go Home
-          </Link>
+          </a>
         </div>
       </body>
     </html>

@@ -32,3 +32,6 @@ export default function RootLayout({
     </html>
   );
 }
+
+// Disable static generation to prevent context issues
+export const dynamic = 'force-dynamic';
