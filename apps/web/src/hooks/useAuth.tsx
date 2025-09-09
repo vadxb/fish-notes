@@ -40,11 +40,15 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (!isClient) return;
-
+    
     // Sync cookie from localStorage on mount
     syncCookie();
-    checkAuth();
-  }, [isClient, syncCookie, checkAuth]);
+    
+    // Only check auth if we don't have a user yet
+    if (!user) {
+      checkAuth();
+    }
+  }, [isClient, syncCookie, checkAuth, user]);
 
   const login = async (email: string, password: string) => {
     const response = await fetch("/api/auth/login", {
