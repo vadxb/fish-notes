@@ -247,7 +247,7 @@ export default function CollectionPage() {
                 scientificName: item.scientificName || "",
                 countryId: item.country.id,
                 country: item.country,
-                habitat: item.habitat,
+                habitat: item.habitat || null,
                 imageUrl: item.imageUrl
               })}
               emptyMessage="No fish species available"
