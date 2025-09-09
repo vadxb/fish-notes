@@ -126,6 +126,10 @@ export async function GET(request: NextRequest) {
         };
       }>;
       catchComments: Array<{
+        id: string;
+        content: string;
+        createdAt: Date;
+        updatedAt: Date;
         user: {
           id: string;
           username: string | null;
