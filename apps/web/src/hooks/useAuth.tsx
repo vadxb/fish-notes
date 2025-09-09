@@ -40,10 +40,10 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (!isClient) return;
-    
+
     // Sync cookie from localStorage on mount
     syncCookie();
-    
+
     // Only check auth if we don't have a user yet
     if (!user) {
       checkAuth();

@@ -226,7 +226,7 @@ export async function DELETE(
       });
 
       // Update any events that reference this catch
-      await tx.event.updateMany({
+      await tx.fishEvent.updateMany({
         where: { catches: { some: { id } } },
         data: { catches: { disconnect: { id } } },
       });
