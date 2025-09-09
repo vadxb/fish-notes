@@ -33,6 +33,7 @@ export default function EventsPage() {
     events,
     loading: eventsLoading,
     error,
+    fetchEvents,
     refreshEvents,
     deleteEvent: deleteEventFromStore,
   } = useEventStore();
@@ -48,22 +49,20 @@ export default function EventsPage() {
     setIsClient(true);
   }, []);
 
-  // Fetch events when user is available
+  // Fetch events when user is available (only if not already loaded)
   useEffect(() => {
     if (user && isClient) {
-      refreshEvents();
+      fetchEvents();
     }
-  }, [user, isClient, refreshEvents]);
+  }, [user, isClient, fetchEvents]);
 
   // Show loading state for SSR
   if (!isClient) {
     return (
-      <div
-        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
-      >
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className={themeConfig.colors.text.secondary}>Loading...</p>
+          <p className="text-gray-400">Loading...</p>
         </div>
       </div>
     );
