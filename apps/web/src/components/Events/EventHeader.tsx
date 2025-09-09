@@ -1,4 +1,5 @@
 import { ArrowLeft, Calendar, Trash2, Plus } from "lucide-react";
+import { useTheme } from "@web/contexts/ThemeContext";
 
 interface EventHeaderProps {
   onBack: () => void;
@@ -23,6 +24,7 @@ export default function EventHeader({
   onNew,
   newButtonText = "New Event",
 }: EventHeaderProps) {
+  const { themeConfig } = useTheme();
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center space-x-4">
@@ -33,10 +35,12 @@ export default function EventHeader({
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+          <h1 className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}>
             {title}
           </h1>
-          {subtitle && <p className="text-gray-400">{subtitle}</p>}
+          {subtitle && (
+            <p className={themeConfig.colors.text.muted}>{subtitle}</p>
+          )}
         </div>
       </div>
 

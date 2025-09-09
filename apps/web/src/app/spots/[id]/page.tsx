@@ -13,6 +13,8 @@ import {
   SpotError,
 } from "@web/components/SpotForm";
 import { X, Save } from "lucide-react";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
+import { useTheme } from "@web/contexts/ThemeContext";
 
 interface WaterBody {
   id: string;
@@ -32,6 +34,7 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
   const { user } = useAuth();
   const router = useRouter();
   const { deleteSpotAPI, updateSpotAPI } = useSpotStore();
+  const { themeConfig } = useTheme();
   const { id } = use(params);
 
   const [formData, setFormData] = useState({
@@ -56,6 +59,7 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
   const [loadingSpot, setLoadingSpot] = useState(true);
   const [mapImage, setMapImage] = useState<string>("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [userCountryId, setUserCountryId] = useState<string | null>(null);
   const [selectedWaterBody, setSelectedWaterBody] = useState<WaterBody | null>(
     null
@@ -187,15 +191,11 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
     // No need to re-render the map since MapFocusOnMarker handles panning
   };
 
-  const handleDelete = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this spot? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = async () => {
     setIsDeleting(true);
     try {
       const success = await deleteSpotAPI(id);
@@ -203,11 +203,13 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
         router.push("/spots");
       } else {
         setError("Failed to delete spot");
+        setShowDeleteConfirm(false);
       }
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to delete spot"
       );
+      setShowDeleteConfirm(false);
     } finally {
       setIsDeleting(false);
     }
@@ -349,13 +351,13 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <SpotHeader
             onBack={() => router.back()}
-            title={spot?.name || "Edit Spot"}
+            title={spot ? `Edit ${spot.name}` : "Edit Spot"}
             subtitle={
               spot
                 ? `Created on ${formatDate(spot.createdAt)}`
@@ -476,6 +478,19 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDelete}
+        title="Delete Spot"
+        message="Are you sure you want to delete this spot? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

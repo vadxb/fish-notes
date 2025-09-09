@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Plus, Search, Filter, ArrowLeft } from "lucide-react";
@@ -8,12 +9,17 @@ import { CatchCard } from "../../components/Catches/CatchCard";
 import { CatchSearchBar } from "../../components/Catches/CatchSearchBar";
 import { CatchEmptyState } from "../../components/Catches/CatchEmptyState";
 import { CatchStats } from "../../components/Catches/CatchStats";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
 
 export default function CatchesPage() {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
 
   // Use Zustand store for catches
   const {
@@ -40,10 +46,12 @@ export default function CatchesPage() {
   // Show loading state for SSR
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -52,10 +60,12 @@ export default function CatchesPage() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -89,8 +99,22 @@ export default function CatchesPage() {
     return matchesSearch;
   });
 
+  const handleDeleteCatch = (catchId: string) => {
+    setShowDeleteConfirm(catchId);
+  };
+
+  const confirmDeleteCatch = async (catchId: string) => {
+    try {
+      await deleteCatch(catchId);
+      setShowDeleteConfirm(null);
+    } catch (error) {
+      console.error("Error deleting catch:", error);
+      setShowDeleteConfirm(null);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -103,10 +127,12 @@ export default function CatchesPage() {
                 <ArrowLeft className="w-6 h-6" />
               </button>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+                <h1
+                  className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}
+                >
                   My Catches
                 </h1>
-                <p className="text-gray-400">
+                <p className={themeConfig.colors.text.muted}>
                   Track and manage your fishing catches
                 </p>
               </div>
@@ -147,7 +173,7 @@ export default function CatchesPage() {
                   catch_={catch_}
                   user={user}
                   onEdit={() => router.push(`/catches/${catch_.id}`)}
-                  onDelete={deleteCatch}
+                  onDelete={handleDeleteCatch}
                   onToggleShared={toggleShared}
                 />
               ))}
@@ -155,6 +181,20 @@ export default function CatchesPage() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showDeleteConfirm !== null}
+        onClose={() => setShowDeleteConfirm(null)}
+        onConfirm={() =>
+          showDeleteConfirm && confirmDeleteCatch(showDeleteConfirm)
+        }
+        title="Delete Catch"
+        message="Are you sure you want to delete this catch? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

@@ -32,11 +32,9 @@ export default function SpotCard({
     onEdit(spot.id);
   };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this spot?")) {
-      await onDelete(spot.id);
-    }
+    onDelete(spot.id);
   };
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {

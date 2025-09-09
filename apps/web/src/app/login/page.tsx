@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@ui/Button";
 import { FishingLogo } from "@ui/Logo/FishingLogo";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import { LogIn, Mail, Lock, AlertCircle } from "lucide-react";
 
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -30,7 +32,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+    <div
+      className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center p-4`}
+    >
       <div className="w-full max-w-md">
         {/* Logo/Header */}
         <div className="text-center mb-8">
@@ -134,7 +138,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-3">
             <p className="text-sm text-gray-400">
               Don't have an account?{" "}
               <a
@@ -142,6 +146,15 @@ export default function LoginPage() {
                 className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
               >
                 Sign up
+              </a>
+            </p>
+            <p className="text-sm text-gray-400">
+              Want to learn more?{" "}
+              <a
+                href="/about"
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                About Fisherman's Notes
               </a>
             </p>
           </div>

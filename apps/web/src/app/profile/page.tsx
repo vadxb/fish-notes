@@ -2,9 +2,11 @@
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useAuthStore } from "@store/useAuthStore";
 import ImageModal from "@web/components/ImageModal";
 import PremiumModal from "@web/components/PremiumModal";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
 import {
   MessageAlert,
   ProfileHeader,
@@ -12,6 +14,7 @@ import {
   ProfilePicture,
   ProfileForm,
 } from "@web/components/Profile";
+import ThemeSelector from "@web/components/Profile/ThemeSelector";
 
 interface UserProfile {
   id: string;
@@ -22,6 +25,7 @@ interface UserProfile {
   subscription: "free" | "premium";
   premiumExpiresAt?: string;
   countryId?: string;
+  theme?: string;
   country?: {
     id: string;
     name: string;
@@ -39,12 +43,16 @@ interface Country {
 
 export default function ProfilePage() {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const { setUser } = useAuthStore();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isCancelingSubscription, setIsCancelingSubscription] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
@@ -88,9 +96,11 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
       try {
+        console.log("Fetching profile...");
         const response = await fetch("/api/profile");
         if (response.ok) {
           const userData = await response.json();
+          console.log("Profile data received:", userData);
           setProfile(userData);
           setFormData({
             name: userData.name || "",
@@ -101,6 +111,7 @@ export default function ProfilePage() {
             confirmPassword: "",
           });
         } else {
+          console.error("Failed to load profile, status:", response.status);
           setError("Failed to load profile");
         }
       } catch (error) {
@@ -115,7 +126,7 @@ export default function ProfilePage() {
   // Show loading state
   if (!isClient || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen ${themeConfig.gradients.background} flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading...</p>
@@ -125,8 +136,33 @@ export default function ProfilePage() {
   }
 
   // Don't render if user is null
-  if (!user || !profile) {
-    return null;
+  if (!user) {
+    console.log("Profile page: user is null");
+    return (
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If profile is not loaded yet, show loading state
+  if (!profile) {
+    console.log("Profile page: profile is null, showing loading");
+    return (
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading profile data...</p>
+        </div>
+      </div>
+    );
   }
 
   const handleInputChange = (
@@ -196,17 +232,13 @@ export default function ProfilePage() {
   };
 
   // Handle premium cancellation
-  const handleCancelSubscription = async () => {
-    if (
-      !confirm(
-        "Are you sure you want to cancel your premium subscription? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
+  const handleCancelSubscription = () => {
+    setShowCancelConfirm(true);
+  };
 
+  const confirmCancelSubscription = async () => {
     try {
-      setIsSubmitting(true);
+      setIsCancelingSubscription(true);
       setError("");
       setSuccess("");
 
@@ -231,6 +263,7 @@ export default function ProfilePage() {
         setSuccess(
           "Premium subscription canceled successfully. You are now on the free plan."
         );
+        setShowCancelConfirm(false);
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to cancel subscription");
@@ -240,8 +273,9 @@ export default function ProfilePage() {
       setError(
         error instanceof Error ? error.message : "Failed to cancel subscription"
       );
+      setShowCancelConfirm(false);
     } finally {
-      setIsSubmitting(false);
+      setIsCancelingSubscription(false);
     }
   };
 
@@ -262,7 +296,7 @@ export default function ProfilePage() {
     }
 
     try {
-      setIsSubmitting(true);
+      setIsUploadingAvatar(true);
       setError("");
 
       // Convert file to base64
@@ -300,7 +334,7 @@ export default function ProfilePage() {
         error instanceof Error ? error.message : "Failed to upload avatar"
       );
     } finally {
-      setIsSubmitting(false);
+      setIsUploadingAvatar(false);
       // Clear file input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -310,7 +344,7 @@ export default function ProfilePage() {
 
   const handleRemoveAvatar = async () => {
     try {
-      setIsSubmitting(true);
+      setIsUploadingAvatar(true);
       setError("");
 
       const response = await fetch("/api/profile", {
@@ -336,7 +370,7 @@ export default function ProfilePage() {
         error instanceof Error ? error.message : "Failed to remove avatar"
       );
     } finally {
-      setIsSubmitting(false);
+      setIsUploadingAvatar(false);
     }
   };
 
@@ -418,7 +452,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen ${themeConfig.gradients.background}">
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -432,7 +466,7 @@ export default function ProfilePage() {
             {/* Account Status */}
             <AccountStatus
               profile={profile}
-              isSubmitting={isSubmitting}
+              isSubmitting={isCancelingSubscription}
               onGetPremium={() => setIsPremiumModalOpen(true)}
               onCancelSubscription={handleCancelSubscription}
             />
@@ -440,24 +474,31 @@ export default function ProfilePage() {
             {/* Profile Picture */}
             <ProfilePicture
               profile={profile}
-              isSubmitting={isSubmitting}
+              isSubmitting={isUploadingAvatar}
               fileInputRef={fileInputRef}
               onAvatarUpload={handleAvatarUpload}
               onRemoveAvatar={handleRemoveAvatar}
               onImageClick={openImageModal}
             />
           </div>
-        </div>
 
-        {/* Profile Information */}
-        <ProfileForm
-          profile={profile}
-          formData={formData}
-          countries={countries}
-          isSubmitting={isSubmitting}
-          onInputChange={handleInputChange}
-          onSubmit={handleProfileUpdate}
-        />
+          {/* Theme Selection */}
+          <div className="mt-6">
+            <ThemeSelector isSubmitting={isSubmitting} />
+          </div>
+
+          {/* Profile Information */}
+          <div className="mt-6">
+            <ProfileForm
+              profile={profile}
+              formData={formData}
+              countries={countries}
+              isSubmitting={isSubmitting}
+              onInputChange={handleInputChange}
+              onSubmit={handleProfileUpdate}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Avatar Modal */}
@@ -475,6 +516,19 @@ export default function ProfilePage() {
         isOpen={isPremiumModalOpen}
         onClose={() => setIsPremiumModalOpen(false)}
         onPurchase={handlePremiumPurchase}
+      />
+
+      {/* Cancel Subscription Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={confirmCancelSubscription}
+        title="Cancel Premium Subscription"
+        message="Are you sure you want to cancel your premium subscription? This action cannot be undone and you will lose access to premium features."
+        type="warning"
+        confirmText="Cancel Subscription"
+        cancelText="Keep Premium"
+        isLoading={isCancelingSubscription}
       />
     </div>
   );

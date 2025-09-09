@@ -3,38 +3,30 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function seedCountries() {
+  console.log("Seeding countries...");
+
   try {
-    // Create Belarus country first
-    const belarus = await prisma.country.upsert({
+    // Check if Belarus already exists
+    let belarus = await prisma.country.findUnique({
       where: { code: "BY" },
-      update: {},
-      create: {
-        name: "Belarus",
-        code: "BY",
-      },
     });
 
-    // Add more countries if needed in the future
-    const countries = [
-      { name: "United States", code: "US" },
-      { name: "United Kingdom", code: "GB" },
-      { name: "Germany", code: "DE" },
-      { name: "France", code: "FR" },
-      { name: "Poland", code: "PL" },
-      { name: "Lithuania", code: "LT" },
-      { name: "Latvia", code: "LV" },
-      { name: "Ukraine", code: "UA" },
-      { name: "Russia", code: "RU" },
-    ];
-
-    for (const country of countries) {
-      await prisma.country.upsert({
-        where: { code: country.code },
-        update: {},
-        create: country,
+    if (!belarus) {
+      // Create Belarus if it doesn't exist
+      belarus = await prisma.country.create({
+        data: {
+          name: "Belarus",
+          code: "BY",
+        },
       });
+      console.log(`Created country: ${belarus.name} (${belarus.code})`);
+    } else {
+      console.log(`Country already exists: ${belarus.name} (${belarus.code})`);
     }
+
+    console.log("Countries seeded successfully!");
   } catch (error) {
+    console.error("Error seeding countries:", error);
     throw error;
   }
 }
@@ -42,7 +34,8 @@ export async function seedCountries() {
 // Run if called directly
 if (require.main === module) {
   seedCountries()
-    .catch((e) => {
+    .catch((error) => {
+      console.error(error);
       process.exit(1);
     })
     .finally(async () => {

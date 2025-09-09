@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
         GROUP BY u.id, u.name, u.username, u.avatar
         HAVING COALESCE(SUM(c.weight), 0) > 0
         ORDER BY total_weight DESC
-        LIMIT 3
+        LIMIT 50
       `;
     } else if (metric === "count") {
       // Top users by catch count (Premium users only)
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
         GROUP BY u.id, u.name, u.username, u.avatar
         HAVING COUNT(c.id) > 0
         ORDER BY catch_count DESC
-        LIMIT 3
+        LIMIT 50
       `;
     }
 

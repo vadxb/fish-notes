@@ -10,6 +10,7 @@ interface User {
   avatar?: string | null;
   subscription?: string | null;
   premiumExpiresAt?: string | Date | null;
+  theme?: string;
 }
 
 interface AuthState {

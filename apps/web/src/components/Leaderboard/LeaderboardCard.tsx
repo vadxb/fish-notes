@@ -45,12 +45,12 @@ const LeaderboardCard = ({
         ))}
       </div>
       {hasMoreEntries && (
-        <div className="mt-3 pt-2 border-t border-white/20">
+        <div className="mt-4 pt-3 border-t border-white/20">
           <button
             onClick={() => setShowAll(!showAll)}
-            className="w-full text-center text-white/70 hover:text-white text-sm font-medium transition-colors duration-200"
+            className="w-full text-center text-white/80 hover:text-white text-sm font-semibold transition-all duration-200 bg-white/10 hover:bg-white/20 rounded-lg py-2 px-4"
           >
-            {showAll ? "Show less" : `Show all (${entries.length})`}
+            {showAll ? "Show Less" : `Show All (${entries.length})`}
           </button>
         </div>
       )}

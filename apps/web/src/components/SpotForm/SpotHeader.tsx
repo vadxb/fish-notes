@@ -1,4 +1,5 @@
 import { ArrowLeft, MapPin } from "lucide-react";
+import { useTheme } from "@web/contexts/ThemeContext";
 
 interface SpotHeaderProps {
   onBack: () => void;
@@ -17,6 +18,7 @@ export default function SpotHeader({
   onDelete,
   isDeleting = false,
 }: SpotHeaderProps) {
+  const { themeConfig } = useTheme();
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center space-x-4">
@@ -27,10 +29,10 @@ export default function SpotHeader({
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+          <h1 className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}>
             {title}
           </h1>
-          <p className="text-gray-400">{subtitle}</p>
+          <p className={themeConfig.colors.text.muted}>{subtitle}</p>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { FishingLogo } from "@ui/Logo/FishingLogo";
 import { getSubscriptionStatus } from "@web/lib/subscriptionUtils";
 import {
@@ -30,6 +31,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMiscExpanded, setIsMiscExpanded] = useState(false);
   const { user, logout } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -122,17 +124,21 @@ export default function Sidebar({ className = "" }: SidebarProps) {
 
   return (
     <div
-      className={`bg-gray-900/95 backdrop-blur-sm border-r border-gray-700/50 transition-all duration-300 flex flex-col h-screen ${
+      className={`${themeConfig.header.background} backdrop-blur-sm border-r ${themeConfig.colors.border} transition-all duration-300 flex flex-col h-screen ${
         isExpanded ? "w-64" : "w-16"
       } ${className}`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-700/50 flex-shrink-0">
+      <div
+        className={`flex items-center justify-between p-4 border-b ${themeConfig.colors.border} flex-shrink-0`}
+      >
         {isExpanded && (
           <div className="flex items-center space-x-3">
-            <FishingLogo className="w-8 h-8" color="#60a5fa" />
+            <FishingLogo className="w-8 h-8" color={themeConfig.header.logo} />
             <div>
-              <h1 className="text-lg font-semibold bg-blue-600/50 bg-clip-text text-transparent">
+              <h1
+                className={`text-lg font-semibold ${themeConfig.header.text}`}
+              >
                 Fisherman's Notes
               </h1>
             </div>
@@ -140,32 +146,42 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         )}
         {!isExpanded && (
           <div className="flex justify-center w-full">
-            <FishingLogo className="w-8 h-8" color="#60a5fa" />
+            <FishingLogo className="w-8 h-8" color={themeConfig.header.logo} />
           </div>
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg hover:bg-gray-800/50 transition-colors"
+          className={`p-1.5 rounded-lg ${themeConfig.colors.background.hover} transition-colors`}
           title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
         >
           {isExpanded ? (
-            <ChevronLeft className="w-4 h-4 text-gray-300" />
+            <ChevronLeft
+              className={`w-4 h-4 ${themeConfig.colors.text.secondary}`}
+            />
           ) : (
-            <ChevronRight className="w-4 h-4 text-gray-300" />
+            <ChevronRight
+              className={`w-4 h-4 ${themeConfig.colors.text.secondary}`}
+            />
           )}
         </button>
       </div>
 
       {/* User Section - Moved to top */}
       {user && (
-        <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
+        <div
+          className={`p-4 border-b ${themeConfig.colors.border} flex-shrink-0`}
+        >
           <div className="space-y-3">
             {/* User Info */}
             <button
               onClick={() => router.push("/profile")}
               className={`w-full flex items-center ${
                 isExpanded ? "space-x-3" : "justify-center"
-              } hover:bg-gray-800/50 rounded-xl p-3 transition-all duration-200`}
+              } ${
+                pathname === "/profile"
+                  ? `${themeConfig.colors.active.background} ${themeConfig.colors.active.text} border ${themeConfig.colors.active.border} ${themeConfig.colors.active.shadow} shadow-lg`
+                  : `${themeConfig.colors.background.hover} ${themeConfig.colors.text.secondary}`
+              } rounded-xl p-3 transition-all duration-200`}
               title={isExpanded ? "" : "Profile"}
             >
               <div className="flex-shrink-0">
@@ -173,17 +189,51 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                   <img
                     src={user.avatar}
                     alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover border-2 border-gray-600"
+                    className={`w-8 h-8 rounded-full object-cover border-2 ${
+                      pathname === "/profile"
+                        ? themeConfig.colors.active.border.replace(
+                            "border-",
+                            "border-"
+                          )
+                        : themeConfig.colors.border.replace(
+                            "border-",
+                            "border-"
+                          )
+                    }`}
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center border-2 border-gray-600">
-                    <User className="w-4 h-4 text-gray-300" />
+                  <div
+                    className={`w-8 h-8 ${themeConfig.colors.background.card} rounded-full flex items-center justify-center border-2 ${
+                      pathname === "/profile"
+                        ? themeConfig.colors.active.border.replace(
+                            "border-",
+                            "border-"
+                          )
+                        : themeConfig.colors.border.replace(
+                            "border-",
+                            "border-"
+                          )
+                    }`}
+                  >
+                    <User
+                      className={`w-4 h-4 ${
+                        pathname === "/profile"
+                          ? themeConfig.colors.active.text
+                          : themeConfig.colors.text.secondary
+                      }`}
+                    />
                   </div>
                 )}
               </div>
               {isExpanded && (
                 <div className="flex-1 min-w-0 text-left">
-                  <p className="text-sm font-medium text-white truncate">
+                  <p
+                    className={`text-sm font-medium ${
+                      pathname === "/profile"
+                        ? themeConfig.colors.active.text
+                        : themeConfig.colors.text.primary
+                    } truncate`}
+                  >
                     {user.username || user.name || "User"}
                   </p>
                   <div className="flex items-center space-x-2 mt-1">
@@ -194,7 +244,9 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                             status.status === "premium"
                               ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                              : "bg-gray-700/50 text-gray-300 border border-gray-600/30"
+                              : pathname === "/profile"
+                                ? `${themeConfig.colors.active.background} ${themeConfig.colors.active.text} border ${themeConfig.colors.active.border}`
+                                : `${themeConfig.colors.background.card} ${themeConfig.colors.text.secondary} border ${themeConfig.colors.border}`
                           }`}
                         >
                           {status.displayText}
@@ -247,21 +299,27 @@ export default function Sidebar({ className = "" }: SidebarProps) {
               <div key={section.title}>
                 {isExpanded && (
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <h3
+                      className={`text-xs font-semibold ${themeConfig.colors.text.muted} uppercase tracking-wider`}
+                    >
                       {section.title}
                     </h3>
                     {isMiscSection && (
                       <button
                         onClick={toggleMiscSection}
-                        className="p-1 rounded hover:bg-gray-800/50 transition-colors"
+                        className={`p-1 rounded ${themeConfig.colors.background.hover} transition-colors`}
                         title={
                           isMiscExpanded ? "Collapse section" : "Expand section"
                         }
                       >
                         {isMiscExpanded ? (
-                          <ChevronUp className="w-4 h-4 text-gray-400" />
+                          <ChevronUp
+                            className={`w-4 h-4 ${themeConfig.colors.text.muted}`}
+                          />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-gray-400" />
+                          <ChevronDown
+                            className={`w-4 h-4 ${themeConfig.colors.text.muted}`}
+                          />
                         )}
                       </button>
                     )}
@@ -277,8 +335,8 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                             onClick={() => router.push(item.href)}
                             className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
                               item.current
-                                ? "bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-blue-500/20 shadow-lg"
-                                : "text-gray-300 hover:bg-gray-800/50 hover:text-white hover:shadow-lg"
+                                ? `${themeConfig.colors.active.background} ${themeConfig.colors.active.text} border ${themeConfig.colors.active.border} ${themeConfig.colors.active.shadow} shadow-lg`
+                                : `${themeConfig.colors.text.secondary} ${themeConfig.colors.background.hover} hover:text-white hover:shadow-lg`
                             } ${!isExpanded ? "justify-center" : ""}`}
                             title={!isExpanded ? item.name : undefined}
                           >

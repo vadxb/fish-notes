@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
 import {
@@ -20,6 +21,7 @@ import { useEventStore } from "@store/useEventStore";
 import { useCatchStore } from "@store/useCatchStore";
 import { formatDate } from "@web/lib/dateUtils";
 import ImageModal from "@web/components/ImageModal";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
 import {
   FishSelector,
   BaitSelector,
@@ -61,6 +63,7 @@ export default function CatchDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const { id } = React.use(params);
   const [isClient, setIsClient] = useState(false);
@@ -76,6 +79,7 @@ export default function CatchDetailPage({
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [photosToRemove, setPhotosToRemove] = useState<string[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Use stores
@@ -511,9 +515,11 @@ export default function CatchDetailPage({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this catch?")) return;
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       const response = await fetch(`/api/catches/${id}`, {
         method: "DELETE",
@@ -524,21 +530,25 @@ export default function CatchDetailPage({
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete catch");
+        setShowDeleteConfirm(false);
       }
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to delete catch"
       );
+      setShowDeleteConfirm(false);
     }
   };
 
   // Show loading state
   if (!isClient || loading || !userCountryId || dataLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -551,9 +561,13 @@ export default function CatchDetailPage({
 
   if (!catch_) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
+          <h1
+            className={`text-2xl font-bold ${themeConfig.colors.text.primary} mb-4`}
+          >
             Catch Not Found
           </h1>
           <button
@@ -568,7 +582,7 @@ export default function CatchDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -581,10 +595,14 @@ export default function CatchDetailPage({
                 <ArrowLeft className="w-6 h-6" />
               </button>
               <div>
-                <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+                <h1
+                  className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}
+                >
                   Edit Catch
                 </h1>
-                <p className="text-gray-400">Update your catch information</p>
+                <p className={themeConfig.colors.text.muted}>
+                  Update your catch information
+                </p>
               </div>
             </div>
             <div className="flex space-x-3">
@@ -897,6 +915,18 @@ export default function CatchDetailPage({
           onClose={closeImageModal}
         />
       )}
+
+      {/* Delete Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDelete}
+        title="Delete Catch"
+        message="Are you sure you want to delete this catch? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

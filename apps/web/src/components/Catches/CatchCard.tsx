@@ -52,18 +52,9 @@ export const CatchCard: React.FC<CatchCardProps> = ({
     onEdit();
   };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Are you sure you want to delete this catch?")) {
-      // Disable the button to prevent double-clicks
-      const button = e.currentTarget as HTMLButtonElement;
-      button.disabled = true;
-      try {
-        await onDelete(catch_.id);
-      } finally {
-        button.disabled = false;
-      }
-    }
+    onDelete(catch_.id);
   };
 
   const handleToggleShared = async (e: React.MouseEvent) => {

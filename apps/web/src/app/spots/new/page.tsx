@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useSpotStore } from "@store/useSpotStore";
@@ -25,6 +26,7 @@ interface WaterBody {
 
 export default function NewSpotPage() {
   const { user } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const { createSpot } = useSpotStore();
   const [formData, setFormData] = useState({
@@ -88,10 +90,14 @@ export default function NewSpotPage() {
   // Don't render form until user country is loaded
   if (!userCountryId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <div className="text-white text-lg">Loading your country data...</div>
+          <div className={`${themeConfig.colors.text.primary} text-lg`}>
+            Loading your country data...
+          </div>
         </div>
       </div>
     );
@@ -223,7 +229,7 @@ export default function NewSpotPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}

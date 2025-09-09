@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "@web/contexts/ThemeContext";
 
 interface DashboardHeaderProps {
   userName: string;
@@ -9,12 +10,14 @@ export default function DashboardHeader({
   userName,
   userEmail,
 }: DashboardHeaderProps) {
+  const { themeConfig } = useTheme();
+
   return (
     <div className="mb-8">
-      <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+      <h1 className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}>
         Welcome back, {userName || userEmail}!
       </h1>
-      <p className="text-gray-400">
+      <p className={themeConfig.colors.text.muted}>
         Here's what's happening with your fishing adventures
       </p>
     </div>

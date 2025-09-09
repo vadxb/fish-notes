@@ -94,7 +94,6 @@ export async function seedFish() {
 
     await prisma.fish.createMany({
       data: formatted,
-      skipDuplicates: true,
     });
   } catch (error) {
     throw error;

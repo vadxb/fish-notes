@@ -13,7 +13,6 @@ async function main() {
   });
 
   if (!user1 || !user2) {
-    console.log("Users not found. Please run seed first.");
     return;
   }
 
@@ -70,9 +69,7 @@ async function main() {
       const newCatch = await prisma.catch.create({
         data: catchData,
       });
-      console.log("Created catch:", newCatch.species);
     } else {
-      console.log("Catch already exists:", catchData.species);
     }
   }
 
@@ -98,7 +95,6 @@ async function main() {
             catchId: catchItem.id,
           },
         });
-        console.log("Added like for catch:", catchItem.species);
       }
     }
 
@@ -129,12 +125,9 @@ async function main() {
         await prisma.catchComment.create({
           data: comment,
         });
-        console.log("Added comment:", comment.content);
       }
     }
   }
-
-  console.log("Seed completed successfully!");
 }
 
 main()

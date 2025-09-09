@@ -53,11 +53,7 @@ export default function SpotMapSection({
           longitude={longitude}
           coordinates={coordinates}
           interactive={true}
-          onMapClick={
-            isAddingMarker
-              ? (onMapClickHandler as any) || undefined
-              : onMapClick
-          }
+          onMapClick={onMapClick}
           className="h-96"
           onScreenshot={onMapScreenshot}
           selectedMarkerIndex={selectedMarkerIndex}

@@ -1,11 +1,13 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { useEventStore } from "@store/useEventStore";
 import { useCatchStore } from "@store/useCatchStore";
 import ManageCatchesModal from "@web/components/ManageCatchesModal";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
 import {
   EventCard,
   EventSearchBar,
@@ -16,12 +18,16 @@ import {
 
 export default function EventsPage() {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "calendar">("grid");
   const [showManageCatchesModal, setShowManageCatchesModal] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
 
   const {
     events,
@@ -52,10 +58,12 @@ export default function EventsPage() {
   // Show loading state for SSR
   if (!isClient) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -64,10 +72,12 @@ export default function EventsPage() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -80,41 +90,42 @@ export default function EventsPage() {
   }
 
   // Handle event deletion
-  const handleDeleteEvent = async (eventId: string) => {
-    if (
-      confirm(
-        "Are you sure you want to delete this event? This action cannot be undone."
-      )
-    ) {
-      try {
-        const response = await fetch(`/api/events/${eventId}`, {
-          method: "DELETE",
-        });
+  const handleDeleteEvent = (eventId: string) => {
+    setShowDeleteConfirm(eventId);
+  };
 
-        if (response.ok) {
-          // Remove the event from the store
-          deleteEventFromStore(eventId);
-        } else {
-          console.error("Failed to delete event");
-          alert("Failed to delete event. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error deleting event:", error);
-        alert("Error deleting event. Please try again.");
+  const confirmDeleteEvent = async (eventId: string) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        // Remove the event from the store
+        deleteEventFromStore(eventId);
+        setShowDeleteConfirm(null);
+      } else {
+        console.error("Failed to delete event");
+        alert("Failed to delete event. Please try again.");
+        setShowDeleteConfirm(null);
       }
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      alert("Error deleting event. Please try again.");
+      setShowDeleteConfirm(null);
     }
   };
 
   // Handle delete catch
   const handleDeleteCatch = async (catchId: string) => {
-    if (confirm("Are you sure you want to delete this catch?")) {
-      try {
-        await deleteCatch(catchId);
-        // Refresh events to get updated catch counts
-        await refreshEvents();
-      } catch (error) {
-        console.error("Failed to delete catch:", error);
-      }
+    // This is handled by the ManageCatchesModal component
+    // which now uses ConfirmationPopup internally
+    try {
+      await deleteCatch(catchId);
+      // Refresh events to get updated catch counts
+      await refreshEvents();
+    } catch (error) {
+      console.error("Failed to delete catch:", error);
     }
   };
 
@@ -136,7 +147,7 @@ export default function EventsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -216,6 +227,20 @@ export default function EventsPage() {
             }}
             event={selectedEvent}
             onDeleteCatch={handleDeleteCatch}
+          />
+
+          {/* Delete Event Confirmation Popup */}
+          <ConfirmationPopup
+            isOpen={showDeleteConfirm !== null}
+            onClose={() => setShowDeleteConfirm(null)}
+            onConfirm={() =>
+              showDeleteConfirm && confirmDeleteEvent(showDeleteConfirm)
+            }
+            title="Delete Event"
+            message="Are you sure you want to delete this event? This action cannot be undone."
+            type="danger"
+            confirmText="Delete"
+            cancelText="Cancel"
           />
         </div>
       </div>

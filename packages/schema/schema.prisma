@@ -17,6 +17,7 @@ model User {
   subscription    String      @default("free") // "free" or "premium"
   premiumExpiresAt DateTime?  // When premium subscription expires
   countryId       String?
+  theme           String      @default("night-fishing") // User's selected theme
   createdAt       DateTime    @default(now())
   updatedAt       DateTime?   @updatedAt
   catches         Catch[]

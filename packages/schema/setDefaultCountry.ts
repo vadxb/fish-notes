@@ -2,29 +2,48 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function setDefaultCountry() {
+export async function setDefaultCountry() {
+  console.log("Setting default country to Belarus...");
+
   try {
-    // Get Belarus country
-    const belarus = await prisma.country.findFirst({
+    // Find Belarus
+    const belarus = await prisma.country.findUnique({
       where: { code: "BY" },
     });
 
     if (!belarus) {
-      throw new Error(
-        "Belarus country not found. Please run seedCountries first."
-      );
+      console.log("Belarus not found. Please run seedCountries first.");
+      return;
     }
 
-    // Update users without country to Belarus
-    await prisma.user.updateMany({
-      where: {
-        countryId: null,
-      },
-      data: {
-        countryId: belarus.id,
-      },
+    // Update all users without a country to Belarus
+    const updatedUsers = await prisma.user.updateMany({
+      where: { countryId: null },
+      data: { countryId: belarus.id },
     });
+
+    // Update all fishes to Belarus (since countryId is required)
+    const updatedFishes = await prisma.fish.updateMany({
+      data: { countryId: belarus.id },
+    });
+
+    // Update all baits to Belarus (since countryId is required)
+    const updatedBaits = await prisma.bait.updateMany({
+      data: { countryId: belarus.id },
+    });
+
+    // Update all water bodies to Belarus (since countryId is required)
+    const updatedWaterBodies = await prisma.waterBody.updateMany({
+      data: { countryId: belarus.id },
+    });
+
+    console.log(`Updated ${updatedUsers.count} users to Belarus`);
+    console.log(`Updated ${updatedFishes.count} fishes to Belarus`);
+    console.log(`Updated ${updatedBaits.count} baits to Belarus`);
+    console.log(`Updated ${updatedWaterBodies.count} water bodies to Belarus`);
+    console.log("Default country set successfully!");
   } catch (error) {
+    console.error("Error setting default country:", error);
     throw error;
   }
 }
@@ -32,12 +51,11 @@ async function setDefaultCountry() {
 // Run if called directly
 if (require.main === module) {
   setDefaultCountry()
-    .catch((e) => {
+    .catch((error) => {
+      console.error(error);
       process.exit(1);
     })
     .finally(async () => {
       await prisma.$disconnect();
     });
 }
-
-export { setDefaultCountry };

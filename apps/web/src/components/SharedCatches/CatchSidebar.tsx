@@ -53,6 +53,22 @@ const CatchSidebar = ({
   const [displayedCatches, setDisplayedCatches] = useState<SharedCatch[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
+  // Ensure displayedCatches never contains duplicates
+  const uniqueDisplayedCatches = useMemo(() => {
+    const unique = displayedCatches.filter(
+      (catchItem, index, self) =>
+        index === self.findIndex((c) => c.id === catchItem.id)
+    );
+
+    if (unique.length !== displayedCatches.length) {
+      console.warn(
+        `Found ${displayedCatches.length - unique.length} duplicate catches in displayedCatches`
+      );
+    }
+
+    return unique;
+  }, [displayedCatches]);
+
   const ITEMS_PER_PAGE = 10;
 
   const filteredCatches = useMemo(() => {
@@ -68,25 +84,57 @@ const CatchSidebar = ({
     });
   }, [catches, filter, selectedUserId, currentUserId]);
 
+  const uniqueFilteredCatches = useMemo(() => {
+    const unique = filteredCatches.filter(
+      (catchItem, index, self) =>
+        index === self.findIndex((c) => c.id === catchItem.id)
+    );
+
+    // Debug: Log if we found duplicates
+    if (unique.length !== filteredCatches.length) {
+      console.warn(
+        `Found ${filteredCatches.length - unique.length} duplicate catches in filteredCatches`
+      );
+    }
+
+    return unique;
+  }, [filteredCatches]);
+
   const loadMoreCatches = useCallback(() => {
     if (loading || !hasMore) return;
 
     // Simulate API call delay
     setTimeout(() => {
-      const startIndex = displayedCatches.length;
+      const startIndex = uniqueDisplayedCatches.length;
       const endIndex = startIndex + ITEMS_PER_PAGE;
-      const newCatches = filteredCatches.slice(startIndex, endIndex);
+      const newCatches = uniqueFilteredCatches.slice(startIndex, endIndex);
 
-      setDisplayedCatches((prev) => [...prev, ...newCatches]);
-      setHasMore(endIndex < filteredCatches.length);
+      // Filter out any catches that are already displayed to prevent duplicates
+      const existingIds = new Set(
+        uniqueDisplayedCatches.map((catchItem) => catchItem.id)
+      );
+      const uniqueNewCatches = newCatches.filter(
+        (catchItem) => !existingIds.has(catchItem.id)
+      );
+
+      // Additional safety check: ensure no duplicates in the new catches array itself
+      const finalNewCatches = uniqueNewCatches.filter(
+        (catchItem, index, self) =>
+          index === self.findIndex((c) => c.id === catchItem.id)
+      );
+
+      if (finalNewCatches.length > 0) {
+        setDisplayedCatches((prev) => [...prev, ...finalNewCatches]);
+      }
+      setHasMore(endIndex < uniqueFilteredCatches.length);
     }, 500);
-  }, [displayedCatches.length, filteredCatches, loading, hasMore]);
+  }, [uniqueDisplayedCatches.length, uniqueFilteredCatches]);
 
-  // Reset when filter changes
+  // Reset when filter changes or catches array changes
   useEffect(() => {
-    setDisplayedCatches(filteredCatches.slice(0, ITEMS_PER_PAGE));
-    setHasMore(filteredCatches.length > ITEMS_PER_PAGE);
-  }, [filter, filteredCatches]);
+    setDisplayedCatches(uniqueFilteredCatches.slice(0, ITEMS_PER_PAGE));
+    setHasMore(uniqueFilteredCatches.length > ITEMS_PER_PAGE);
+  }, [filter, uniqueFilteredCatches]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -97,35 +145,37 @@ const CatchSidebar = ({
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
-    if (scrollHeight - scrollTop <= clientHeight + 100) {
+    const isNearBottom = scrollHeight - scrollTop <= clientHeight + 20;
+
+    if (isNearBottom && hasMore && !loading) {
       loadMoreCatches();
     }
   };
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-lg h-[calc(100vh-8rem)] flex flex-col">
+    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-lg h-full flex flex-col max-h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-700/50">
+      <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         <h3 className="text-lg font-bold text-white">
           {filter === "all" && "All Users"}
           {filter === "user" && "Selected User"}
           {filter === "me" && "My Catches"}
         </h3>
         <p className="text-gray-400 text-sm">
-          {filteredCatches.length}{" "}
-          {filteredCatches.length === 1 ? "catch" : "catches"}
+          {uniqueFilteredCatches.length}{" "}
+          {uniqueFilteredCatches.length === 1 ? "catch" : "catches"}
         </p>
       </div>
 
       {/* Catches List */}
       <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
-        {displayedCatches.length === 0 ? (
+        {uniqueDisplayedCatches.length === 0 ? (
           <div className="p-4 text-center text-gray-400">
             <p>No catches found</p>
           </div>
         ) : (
           <div className="p-2 space-y-2">
-            {displayedCatches.map((catchItem) => (
+            {uniqueDisplayedCatches.map((catchItem) => (
               <div
                 key={catchItem.id}
                 onClick={() => onCatchSelect(catchItem.id)}

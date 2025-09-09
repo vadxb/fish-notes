@@ -1,7 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Filter } from "lucide-react";
+import { useAuth } from "../../hooks/useAuth";
+import { useTheme } from "../../contexts/ThemeContext";
 import CatchDetails from "../../components/SharedCatches/CatchDetails";
 import CatchSidebar from "../../components/SharedCatches/CatchSidebar";
 import CatchFilter from "../../components/SharedCatches/CatchFilter";
@@ -40,6 +42,8 @@ interface SharedCatch {
 const SharedCatchesPage = () => {
   const searchParams = useSearchParams();
   const userId = searchParams.get("user");
+  const { user: currentUser, loading: authLoading } = useAuth();
+  const { themeConfig } = useTheme();
 
   const [selectedCatch, setSelectedCatch] = useState<SharedCatch | null>(null);
   const [allCatches, setAllCatches] = useState<SharedCatch[]>([]); // All catches for main content
@@ -47,33 +51,36 @@ const SharedCatchesPage = () => {
   const [loading, setLoading] = useState(true);
   const [sidebarLoading, setSidebarLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "user" | "me">(
-    userId ? "user" : "all"
-  );
+  const [filter, setFilter] = useState<"all" | "user" | "me">("all");
   const [showFilter, setShowFilter] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [sidebarHeight, setSidebarHeight] = useState("calc(100vh - 8rem)");
+  const filterRef = useRef<HTMLDivElement>(null);
 
-  // Get current user ID
-  const fetchCurrentUser = async () => {
-    try {
-      const response = await fetch("/api/auth/me");
-      if (response.ok) {
-        const userData = await response.json();
-        setCurrentUserId(userData.id);
+  // Get current user ID from auth hook
+  const currentUserId = currentUser?.id || null;
+
+  // Get selected user's name
+  const selectedUserName = userId
+    ? allCatches.find((catchItem) => catchItem.user.id === userId)?.user
+        .username
+    : undefined;
+
+  // Auto-set filter based on URL and current user
+  const setInitialFilter = () => {
+    if (userId && currentUserId) {
+      if (userId === currentUserId) {
+        // Same user, show all catches
+        setFilter("all");
       } else {
-        // We'll set the user ID after fetching catches
+        // Different user, show selected user's catches
+        setFilter("user");
       }
-    } catch (err) {
-      // We'll set the user ID after fetching catches
-    }
-  };
-
-  // Set current user ID from catches data as fallback
-  const setCurrentUserFromCatches = () => {
-    if (!currentUserId && allCatches.length > 0) {
-      const firstCatchUserId = allCatches[0].user.id;
-      setCurrentUserId(firstCatchUserId);
+    } else if (userId && !currentUserId) {
+      // Have userId but no currentUserId yet, show selected user
+      setFilter("user");
+    } else {
+      // No userId, show all
+      setFilter("all");
     }
   };
 
@@ -121,10 +128,11 @@ const SharedCatchesPage = () => {
 
       switch (filterType) {
         case "user":
+          // Use userId from URL for selected user
           targetUserId = userId;
           break;
         case "me":
-          // For "me" filter, ensure we have a currentUserId
+          // For "me" filter, use currentUserId
           if (currentUserId) {
             targetUserId = currentUserId;
           }
@@ -149,7 +157,7 @@ const SharedCatchesPage = () => {
 
       // Don't change selected catch, keep main content as is
     } catch (err) {
-      // Handle error silently
+      console.error("Error fetching sidebar catches:", err);
     } finally {
       setSidebarLoading(false);
     }
@@ -157,26 +165,68 @@ const SharedCatchesPage = () => {
 
   useEffect(() => {
     const initializeData = async () => {
-      // First try to get current user
-      await fetchCurrentUser();
-      // Then fetch all catches
-      await fetchAllCatches();
+      // Wait for auth to load, then fetch all catches
+      if (!authLoading) {
+        await fetchAllCatches();
+      }
     };
     initializeData();
+  }, [authLoading]);
+
+  // Set initial filter when currentUserId or userId changes
+  useEffect(() => {
+    if (!authLoading) {
+      setInitialFilter();
+    }
+  }, [currentUserId, userId, authLoading]);
+
+  // Fetch sidebar data when filter changes
+  useEffect(() => {
+    if (currentUserId && !authLoading) {
+      fetchSidebarCatches(filter);
+    }
+  }, [filter, currentUserId, authLoading]);
+
+  // Calculate sidebar height based on document height
+  useEffect(() => {
+    const calculateHeight = () => {
+      const headerHeight = 8 * 16; // 8rem in pixels
+      const availableHeight = Math.max(
+        window.innerHeight - headerHeight,
+        document.documentElement.scrollHeight - headerHeight
+      );
+      setSidebarHeight(`${availableHeight}px`);
+    };
+
+    calculateHeight();
+    window.addEventListener("resize", calculateHeight);
+    window.addEventListener("scroll", calculateHeight);
+
+    return () => {
+      window.removeEventListener("resize", calculateHeight);
+      window.removeEventListener("scroll", calculateHeight);
+    };
   }, []);
 
-  // Set current user ID from catches when allCatches changes
+  // Handle click outside filter dropdown
   useEffect(() => {
-    setCurrentUserFromCatches();
-  }, [allCatches]);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target as Node)
+      ) {
+        setShowFilter(false);
+      }
+    };
 
-  // Set selected user ID for testing
-  useEffect(() => {
-    if (allCatches.length > 0) {
-      // For testing, use the first user as the current user
-      setSelectedUserId(allCatches[0].user.id);
+    if (showFilter) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-  }, [allCatches]);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilter]);
 
   const handleCatchSelect = async (catchId: string) => {
     const selected = allCatches.find((c) => c.id === catchId);
@@ -210,9 +260,11 @@ const SharedCatchesPage = () => {
     await fetchSidebarCatches(newFilter);
   };
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
       </div>
     );
@@ -220,7 +272,9 @@ const SharedCatchesPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <p className="text-red-400 text-lg mb-4">Error: {error}</p>
           <button
@@ -235,7 +289,7 @@ const SharedCatchesPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -246,33 +300,17 @@ const SharedCatchesPage = () => {
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
-            <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
-              Shared Catches
-            </h1>
+            <div>
+              <h1 className={`text-3xl font-bold ${themeConfig.header.text}`}>
+                Shared Catches
+              </h1>
+              <p className={`${themeConfig.colors.text.muted} mt-1`}>
+                Discover and explore catches shared by the community
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* User Selector for Testing */}
-            <select
-              value={selectedUserId || ""}
-              onChange={(e) => setSelectedUserId(e.target.value || null)}
-              className="px-4 py-2 bg-gray-800/50 border border-gray-700/50 rounded-lg text-white focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Select User (Testing)</option>
-              {Array.from(
-                new Map(
-                  allCatches.map((catchItem) => [
-                    catchItem.user.id,
-                    catchItem.user,
-                  ])
-                ).values()
-              ).map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.username}
-                </option>
-              ))}
-            </select>
-
             <button
               onClick={() => setShowFilter(!showFilter)}
               className="flex items-center gap-2 px-4 py-2 bg-gray-800/50 hover:bg-gray-700/50 rounded-lg transition-colors"
@@ -285,12 +323,15 @@ const SharedCatchesPage = () => {
 
         {/* Filter Dropdown */}
         {showFilter && (
-          <CatchFilter
-            currentFilter={filter}
-            onFilterChange={handleFilterChange}
-            onClose={() => setShowFilter(false)}
-            showSelectedUser={!!userId}
-          />
+          <div ref={filterRef}>
+            <CatchFilter
+              currentFilter={filter}
+              onFilterChange={handleFilterChange}
+              onClose={() => setShowFilter(false)}
+              showSelectedUser={!!userId && userId !== currentUserId}
+              selectedUserName={selectedUserName}
+            />
+          </div>
         )}
 
         {/* Main Content */}
@@ -300,7 +341,7 @@ const SharedCatchesPage = () => {
             {selectedCatch ? (
               <CatchDetails
                 catch={selectedCatch}
-                currentUserId={selectedUserId || undefined}
+                currentUserId={currentUserId || undefined}
               />
             ) : (
               <div className="text-center py-12 text-white/60">
@@ -310,7 +351,10 @@ const SharedCatchesPage = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="w-80">
+          <div
+            className="w-80"
+            style={{ height: sidebarHeight, maxHeight: sidebarHeight }}
+          >
             <CatchSidebar
               catches={sidebarCatches}
               selectedCatchId={selectedCatch?.id}

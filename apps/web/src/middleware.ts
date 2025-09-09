@@ -13,6 +13,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Public routes that don't require authentication
+  const publicRoutes = ["/about"];
+  const isPublicRoute = publicRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // Allow public routes without authentication
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
   // Protected routes
   const protectedRoutes = [
     "/dashboard",
@@ -20,6 +31,8 @@ export function middleware(request: NextRequest) {
     "/spots",
     "/events",
     "/collection",
+    "/shared-catches",
+    "/rankings",
   ];
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
@@ -73,5 +86,8 @@ export const config = {
     "/collection/:path*",
     "/login",
     "/signup",
+    "/about",
+    "/shared-catches/:path*",
+    "/rankings/:path*",
   ],
 };

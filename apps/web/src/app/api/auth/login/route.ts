@@ -46,6 +46,11 @@ export async function POST(request: NextRequest) {
         id: user.id,
         email: user.email,
         name: user.name,
+        username: user.username,
+        avatar: user.avatar,
+        subscription: user.subscription,
+        premiumExpiresAt: user.premiumExpiresAt,
+        theme: user.theme,
       },
       token,
     });

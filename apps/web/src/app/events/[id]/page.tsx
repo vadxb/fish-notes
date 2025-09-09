@@ -7,6 +7,8 @@ import { useSpotStore } from "@store/useSpotStore";
 import { useEventStore } from "@store/useEventStore";
 import { getCurrentDateTime, formatDate } from "@web/lib/dateUtils";
 import { EventHeader, EventForm } from "@web/components/Events";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
+import { useTheme } from "@web/contexts/ThemeContext";
 
 interface Event {
   id: string;
@@ -36,6 +38,7 @@ export default function EventDetailPage({
 }) {
   const { user } = useAuth();
   const router = useRouter();
+  const { themeConfig } = useTheme();
   const { id } = React.use(params);
   const { spots, fetchSpots } = useSpotStore();
   const { updateEvent } = useEventStore();
@@ -44,6 +47,7 @@ export default function EventDetailPage({
   const [loadingEvent, setLoadingEvent] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState(() => {
@@ -219,11 +223,11 @@ export default function EventDetailPage({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this event?")) {
-      return;
-    }
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       const response = await fetch(`/api/events/${id}`, {
         method: "DELETE",
@@ -234,11 +238,13 @@ export default function EventDetailPage({
       } else {
         const errorData = await response.json();
         setError(errorData.error || "Failed to delete event");
+        setShowDeleteConfirm(false);
       }
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to delete event"
       );
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -276,14 +282,14 @@ export default function EventDetailPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <EventHeader
             onBack={() => router.back()}
-            title="Edit Event"
-            subtitle={`Created ${formatDate(event.createdAt)}`}
+            title={event ? `Edit ${event.title}` : "Edit Event"}
+            subtitle={`Created ${formatDate(event?.createdAt || new Date().toString())}`}
             showDelete={true}
             onDelete={handleDelete}
             isDeleting={isSubmitting}
@@ -307,6 +313,18 @@ export default function EventDetailPage({
             onSubmit={handleSubmit}
             onCancel={() => router.back()}
             submitButtonText="Update Event"
+          />
+
+          {/* Delete Confirmation Popup */}
+          <ConfirmationPopup
+            isOpen={showDeleteConfirm}
+            onClose={() => setShowDeleteConfirm(false)}
+            onConfirm={confirmDelete}
+            title="Delete Event"
+            message="Are you sure you want to delete this event? This action cannot be undone."
+            type="danger"
+            confirmText="Delete"
+            cancelText="Cancel"
           />
         </div>
       </div>

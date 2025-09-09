@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         avatar: true,
         subscription: true,
         premiumExpiresAt: true,
+        theme: true,
         createdAt: true,
         updatedAt: true,
       },

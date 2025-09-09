@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
@@ -10,14 +11,19 @@ import {
   SpotsEmptyState,
   SpotsError,
 } from "@web/components/Spots";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
 
 export default function SpotsPage() {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isClient, setIsClient] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
 
   const {
     spots,
@@ -52,10 +58,12 @@ export default function SpotsPage() {
   // Show loading state while checking authentication (only on client)
   if (!isClient || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -76,6 +84,20 @@ export default function SpotsPage() {
     return matchesSearch && matchesFavorites;
   });
 
+  const handleDeleteSpot = (spotId: string) => {
+    setShowDeleteConfirm(spotId);
+  };
+
+  const confirmDeleteSpot = async (spotId: string) => {
+    try {
+      await deleteSpotAPI(spotId);
+      setShowDeleteConfirm(null);
+    } catch (error) {
+      console.error("Error deleting spot:", error);
+      setShowDeleteConfirm(null);
+    }
+  };
+
   if (spotsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -88,7 +110,7 @@ export default function SpotsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -120,13 +142,27 @@ export default function SpotsPage() {
                   onCardClick={(spotId) => router.push(`/spots/${spotId}`)}
                   onToggleFavorite={toggleFavoriteAPI}
                   onEdit={(spotId) => router.push(`/spots/${spotId}`)}
-                  onDelete={deleteSpotAPI}
+                  onDelete={handleDeleteSpot}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showDeleteConfirm !== null}
+        onClose={() => setShowDeleteConfirm(null)}
+        onConfirm={() =>
+          showDeleteConfirm && confirmDeleteSpot(showDeleteConfirm)
+        }
+        title="Delete Spot"
+        message="Are you sure you want to delete this spot? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }

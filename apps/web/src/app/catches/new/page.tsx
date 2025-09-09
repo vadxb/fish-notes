@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
@@ -29,6 +30,7 @@ import {
 
 export default function NewCatchPage() {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,10 +174,12 @@ export default function NewCatchPage() {
     eventsLoading
   ) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading...</p>
+          <p className={themeConfig.colors.text.secondary}>Loading...</p>
         </div>
       </div>
     );
@@ -447,7 +451,7 @@ export default function NewCatchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -459,10 +463,14 @@ export default function NewCatchPage() {
               <ArrowLeft className="w-6 h-6" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+              <h1
+                className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}
+              >
                 Add New Catch
               </h1>
-              <p className="text-gray-400">Log your latest fishing success</p>
+              <p className={themeConfig.colors.text.muted}>
+                Log your latest fishing success
+              </p>
             </div>
           </div>
 

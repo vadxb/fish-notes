@@ -6,6 +6,7 @@ interface CatchFilterProps {
   onFilterChange: (filter: "all" | "user" | "me") => void;
   onClose: () => void;
   showSelectedUser?: boolean;
+  selectedUserName?: string;
 }
 
 const CatchFilter = ({
@@ -13,6 +14,7 @@ const CatchFilter = ({
   onFilterChange,
   onClose,
   showSelectedUser = true,
+  selectedUserName,
 }: CatchFilterProps) => {
   const filters = [
     {
@@ -25,9 +27,13 @@ const CatchFilter = ({
       ? [
           {
             key: "user" as const,
-            label: "Selected User",
+            label: selectedUserName
+              ? `Selected User (${selectedUserName})`
+              : "Selected User",
             icon: User,
-            description: "Show catches from selected user only",
+            description: selectedUserName
+              ? `Show catches from ${selectedUserName} only`
+              : "Show catches from selected user only",
           },
         ]
       : []),

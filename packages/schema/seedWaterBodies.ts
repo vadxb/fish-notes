@@ -2,8 +2,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// COMMENTED OUT: Overpass API integration - using sample data instead
 // Overpass query to get water bodies from Belarus
 // Using broader bounding box for Belarus and including more water types
+/*
 const overpassQuery = `
   [out:json][timeout:25];
   (
@@ -47,7 +49,10 @@ interface OverpassResponse {
   };
   elements: OverpassElement[];
 }
+*/
 
+// COMMENTED OUT: Overpass API function - using sample data instead
+/*
 async function fetchOverpassData(): Promise<OverpassResponse> {
   // Add a small delay to avoid rate limiting
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -75,7 +80,10 @@ async function fetchOverpassData(): Promise<OverpassResponse> {
 
   return data;
 }
+*/
 
+// COMMENTED OUT: Overpass helper function - using sample data instead
+/*
 function getCoordinates(
   element: OverpassElement
 ): { lat: number; lon: number } | null {
@@ -91,7 +99,10 @@ function getCoordinates(
 
   return null;
 }
+*/
 
+// COMMENTED OUT: Overpass helper function - using sample data instead
+/*
 function determineWaterType(tags: OverpassElement["tags"]): string {
   if (!tags) return "water";
 
@@ -115,6 +126,7 @@ function determineWaterType(tags: OverpassElement["tags"]): string {
 
   return "water";
 }
+*/
 
 async function createSampleData() {
   const sampleWaterBodies = [
@@ -123,7 +135,6 @@ async function createSampleData() {
       type: "lake",
       latitude: 54.8667,
       longitude: 26.75,
-      country: "Belarus",
       region: "Minsk Region",
     },
     {
@@ -131,7 +142,6 @@ async function createSampleData() {
       type: "river",
       latitude: 53.9,
       longitude: 27.5667,
-      country: "Belarus",
       region: "Minsk Region",
     },
     {
@@ -139,7 +149,6 @@ async function createSampleData() {
       type: "river",
       latitude: 52.55,
       longitude: 30.4,
-      country: "Belarus",
       region: "Gomel Region",
     },
     {
@@ -147,7 +156,6 @@ async function createSampleData() {
       type: "lake",
       latitude: 55.6333,
       longitude: 27.0333,
-      country: "Belarus",
       region: "Vitebsk Region",
     },
     {
@@ -155,7 +163,6 @@ async function createSampleData() {
       type: "river",
       latitude: 53.9,
       longitude: 23.9,
-      country: "Belarus",
       region: "Grodno Region",
     },
   ];
@@ -176,51 +183,19 @@ export async function seedWaterBodies() {
       );
     }
 
-    // Try to get real data first, fall back to sample data
-    let waterBodiesToInsert = [];
-
-    try {
-      const overpassData = await fetchOverpassData();
-
-      // Filter and process elements
-      const validFeatures = overpassData.elements.filter((element) => {
-        const coords = getCoordinates(element);
-        return element.tags?.name && coords;
-      });
-
-      if (validFeatures.length > 0) {
-        waterBodiesToInsert = validFeatures.map((feature) => {
-          const coords = getCoordinates(feature);
-          const waterType = determineWaterType(feature.tags);
-
-          return {
-            name: feature.tags!.name,
-            type: waterType,
-            latitude: coords!.lat,
-            longitude: coords!.lon,
-            countryId: belarus.id,
-            region: feature.tags?.region || null,
-          };
-        });
-      } else {
-        waterBodiesToInsert = await createSampleData();
-        waterBodiesToInsert = waterBodiesToInsert.map((body) => ({
-          ...body,
-          countryId: belarus.id,
-        }));
-      }
-    } catch (error) {
-      waterBodiesToInsert = await createSampleData();
-      waterBodiesToInsert = waterBodiesToInsert.map((body) => ({
-        ...body,
-        countryId: belarus.id,
-      }));
-    }
+    // Use only sample data (Overpass API commented out)
+    console.log("Using sample water bodies data...");
+    const waterBodiesToInsert = await createSampleData();
+    const waterBodiesWithCountry = waterBodiesToInsert.map((body) => ({
+      ...body,
+      countryId: belarus.id,
+    }));
 
     await prisma.waterBody.createMany({
-      data: waterBodiesToInsert,
-      skipDuplicates: true,
+      data: waterBodiesWithCountry,
     });
+
+    console.log(`Seeded ${waterBodiesWithCountry.length} water bodies`);
   } catch (error) {
     throw error;
   }

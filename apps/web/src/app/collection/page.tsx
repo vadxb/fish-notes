@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@web/hooks/useAuth";
+import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Fish, Bug, ArrowLeft } from "lucide-react";
@@ -37,6 +38,7 @@ interface BaitData {
 
 export default function CollectionPage() {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -157,10 +159,14 @@ export default function CollectionPage() {
   // Show loading state while checking authentication
   if (!isClient || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-300">Loading collection...</p>
+          <p className={themeConfig.colors.text.secondary}>
+            Loading collection...
+          </p>
         </div>
       </div>
     );
@@ -169,7 +175,9 @@ export default function CollectionPage() {
   // Show message if countries haven't loaded or no country selected
   if (countries.length === 0 || !selectedCountry) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center max-w-md mx-auto p-6">
           <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg w-fit mx-auto mb-4">
             <Fish className="w-8 h-8 text-blue-400" />
@@ -213,7 +221,7 @@ export default function CollectionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}

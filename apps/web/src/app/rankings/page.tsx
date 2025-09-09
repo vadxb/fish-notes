@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useTheme } from "@web/contexts/ThemeContext";
 import LeaderboardSection from "@web/components/Leaderboard/LeaderboardSection";
 
 interface LeaderboardUser {
@@ -33,6 +34,7 @@ interface LeaderboardCardData {
 }
 
 const RankingsPage = () => {
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const [leaderboards, setLeaderboards] = useState<
     Record<string, LeaderboardData>
@@ -161,7 +163,7 @@ const RankingsPage = () => {
   const leaderboardData = transformLeaderboardData();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex items-center space-x-4 mb-8">
           <button
@@ -171,10 +173,12 @@ const RankingsPage = () => {
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
+            <h1
+              className={`text-3xl font-bold ${themeConfig.header.text} mb-2`}
+            >
               Rankings & Leaderboards
             </h1>
-            <p className="text-gray-400">
+            <p className={themeConfig.colors.text.muted}>
               See how you stack up against other anglers across different
               metrics and time periods.
             </p>
@@ -194,6 +198,25 @@ const RankingsPage = () => {
             >
               Retry
             </button>
+          </div>
+        ) : leaderboardData.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="mb-6">
+              <div className="w-24 h-24 mx-auto mb-4 bg-gray-800/50 rounded-full flex items-center justify-center">
+                <span className="text-4xl">🏆</span>
+              </div>
+              <h3
+                className={`text-xl font-semibold ${themeConfig.colors.text.primary} mb-2`}
+              >
+                No Rankings Available
+              </h3>
+              <p
+                className={`${themeConfig.colors.text.muted} max-w-md mx-auto`}
+              >
+                There aren&apos;t enough catches yet to generate leaderboards.
+                Start logging your catches to see how you rank!
+              </p>
+            </div>
           </div>
         ) : (
           <LeaderboardSection leaderboardData={leaderboardData} />

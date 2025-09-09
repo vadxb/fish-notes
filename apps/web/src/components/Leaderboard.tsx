@@ -45,8 +45,8 @@ const Leaderboard = () => {
   const periods = [{ key: "day", label: "Today", icon: "🌅" }];
 
   const metrics = [
-    { key: "weight", label: "Weight", icon: Weight, color: "text-yellow-400" },
-    { key: "count", label: "Count", icon: Fish, color: "text-blue-400" },
+    { key: "weight", label: "Weight", icon: Weight, color: "text-blue-400" },
+    { key: "count", label: "Count", icon: Fish, color: "text-green-400" },
     { key: "likes", label: "Likes", icon: Heart, color: "text-red-400" },
   ];
 
@@ -92,11 +92,11 @@ const Leaderboard = () => {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="w-5 h-5 text-yellow-400" />;
+        return <Crown className="w-5 h-5 text-blue-400" />;
       case 2:
         return <Medal className="w-5 h-5 text-gray-400" />;
       case 3:
-        return <Award className="w-5 h-5 text-amber-400" />;
+        return <Award className="w-5 h-5 text-orange-400" />;
       default:
         return <Trophy className="w-4 h-4 text-gray-500" />;
     }
@@ -105,11 +105,11 @@ const Leaderboard = () => {
   const getRankColor = (rank: number) => {
     switch (rank) {
       case 1:
-        return "bg-yellow-500/10 border-l-4 border-yellow-400 text-white";
+        return "bg-blue-500/10 border-l-4 border-blue-400 text-white";
       case 2:
         return "bg-gray-700/50 border-l-4 border-gray-400 text-white";
       case 3:
-        return "bg-amber-500/10 border-l-4 border-amber-400 text-white";
+        return "bg-orange-500/10 border-l-4 border-orange-400 text-white";
       default:
         return "bg-gray-700/30 text-gray-300";
     }
@@ -128,6 +128,10 @@ const Leaderboard = () => {
     }
   };
 
+  const handleUserClick = (userId: string) => {
+    router.push(`/shared-catches?user=${userId}`);
+  };
+
   const getDisplayName = (user: LeaderboardUser) => {
     return user.username || user.name || "Anonymous";
   };
@@ -135,7 +139,8 @@ const Leaderboard = () => {
   const renderLeaderboardSection = (
     period: string,
     metric: string,
-    data: LeaderboardData
+    data: LeaderboardData,
+    originalData?: LeaderboardData
   ) => {
     if (!data.leaderboard || data.leaderboard.length === 0) {
       return null;
@@ -165,7 +170,8 @@ const Leaderboard = () => {
             return (
               <div
                 key={leaderboardUser.id}
-                className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${getRankColor(leaderboardUser.rank)} ${
+                onClick={() => handleUserClick(leaderboardUser.id)}
+                className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-lg ${getRankColor(leaderboardUser.rank)} ${
                   isCurrentUser ? "ring-2 ring-blue-500/50 ring-opacity-50" : ""
                 }`}
               >
@@ -212,6 +218,17 @@ const Leaderboard = () => {
               </div>
             );
           })}
+
+          {/* Show "more items" indicator when not expanded and there are more items */}
+          {!isExpanded &&
+            originalData &&
+            originalData.leaderboard.length > 3 && (
+              <div className="text-center py-2">
+                <span className="text-xs text-gray-400">
+                  Showing top 3 of {originalData.leaderboard.length} anglers
+                </span>
+              </div>
+            )}
         </div>
       </div>
     );
@@ -223,7 +240,7 @@ const Leaderboard = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-gray-700/50 rounded-lg">
-            <Trophy className="w-5 h-5 text-yellow-400" />
+            <Trophy className="w-5 h-5 text-blue-400" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">
@@ -258,7 +275,7 @@ const Leaderboard = () => {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content - Only show when expanded */}
       {isExpanded && (
         <>
           {loading ? (
@@ -287,9 +304,20 @@ const Leaderboard = () => {
                 metrics.map((metric) => {
                   const key = `${period.key}-${metric.key}`;
                   const data = leaderboards[key];
-                  return data
-                    ? renderLeaderboardSection(period.key, metric.key, data)
-                    : null;
+                  if (!data) return null;
+
+                  // Always show top 3 only
+                  const displayData = {
+                    ...data,
+                    leaderboard: data.leaderboard.slice(0, 3),
+                  };
+
+                  return renderLeaderboardSection(
+                    period.key,
+                    metric.key,
+                    displayData,
+                    data
+                  );
                 })
               )}
 
@@ -305,6 +333,9 @@ const Leaderboard = () => {
           )}
         </>
       )}
+
+      {/* Collapsed state - Empty */}
+      {!isExpanded && !loading && !error && null}
     </div>
   );
 };

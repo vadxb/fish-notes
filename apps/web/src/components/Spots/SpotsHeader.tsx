@@ -1,4 +1,5 @@
 import { Search, Filter, Plus, ArrowLeft } from "lucide-react";
+import { useTheme } from "@web/contexts/ThemeContext";
 
 interface SpotsHeaderProps {
   showFavoritesOnly: boolean;
@@ -17,6 +18,7 @@ export default function SpotsHeader({
   onAddNew,
   onBack,
 }: SpotsHeaderProps) {
+  const { themeConfig } = useTheme();
   return (
     <div className="mb-8">
       <div className="flex items-center space-x-4 mb-6">
@@ -29,10 +31,10 @@ export default function SpotsHeader({
           </button>
         )}
         <div>
-          <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent">
+          <h1 className={`text-3xl font-bold ${themeConfig.header.text}`}>
             {showFavoritesOnly ? "Favorite Spots" : "Fishing Spots"}
           </h1>
-          <p className="text-gray-400 mt-1">
+          <p className={`${themeConfig.colors.text.muted} mt-1`}>
             {showFavoritesOnly
               ? "Your favorite fishing locations"
               : "Discover and manage your fishing spots"}

@@ -2,6 +2,7 @@
 import { useAuth } from "@web/hooks/useAuth";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTheme } from "@web/contexts/ThemeContext";
 import Sidebar from "./Sidebar";
 import PremiumModal from "./PremiumModal";
 import {
@@ -17,6 +18,7 @@ interface AppLayoutProps {
 
 function AppLayoutContent({ children }: AppLayoutProps) {
   const { user, loading } = useAuth();
+  const { themeConfig } = useTheme();
   const { setUser } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
@@ -27,6 +29,15 @@ function AppLayoutContent({ children }: AppLayoutProps) {
   // Don't show sidebar on login/signup pages
   const isAuthPage = pathname === "/login" || pathname === "/signup";
 
+  // Public routes that don't require authentication
+  const publicRoutes = ["/about"];
+  const isPublicRoute = publicRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  // About page should always be standalone (no sidebar)
+  const isAboutPage = pathname === "/about";
+
   // Ensure we're on the client side to avoid hydration mismatch
   useEffect(() => {
     setIsClient(true);
@@ -35,15 +46,15 @@ function AppLayoutContent({ children }: AppLayoutProps) {
   useEffect(() => {
     if (!isClient) return;
 
-    // Only redirect if we're not loading and user is null
-    if (!loading && user === null) {
+    // Only redirect if we're not loading, user is null, and it's not a public route
+    if (!loading && user === null && !isPublicRoute) {
       router.push("/login");
     }
-  }, [user, loading, router, isClient]);
+  }, [user, loading, router, isClient, isPublicRoute]);
 
   // Show premium modal for free users or expired premium users on login
   useEffect(() => {
-    if (!isClient || loading || !user || isAuthPage) return;
+    if (!isClient || loading || !user || isAuthPage || isPublicRoute) return;
 
     // Show premium modal for free users or expired premium users (only once per session)
     if (shouldShowPremiumModal(user) && !hasShownPremiumModal) {
@@ -92,7 +103,9 @@ function AppLayoutContent({ children }: AppLayoutProps) {
   // Show loading state while checking authentication (only on client)
   if (!isClient || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+      >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
           <p className="text-gray-300">Loading...</p>
@@ -101,12 +114,12 @@ function AppLayoutContent({ children }: AppLayoutProps) {
     );
   }
 
-  if (!user || isAuthPage) {
+  if (isAuthPage || isAboutPage) {
     return <>{children}</>;
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className={`flex h-screen ${themeConfig.gradients.background}`}>
       <Sidebar />
       <main className="flex-1 overflow-auto">{children}</main>
 

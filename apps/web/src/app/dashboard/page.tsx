@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSpotStore } from "@store/useSpotStore";
 import { useEventStore } from "@store/useEventStore";
 import { useEffect, useState, useRef } from "react";
+import { useTheme } from "@web/contexts/ThemeContext";
 import ManageCatchesModal from "@web/components/ManageCatchesModal";
 import Leaderboard from "@web/components/Leaderboard";
 import { Fish, Calendar, MapPin } from "lucide-react";
@@ -53,9 +54,10 @@ interface Event {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { themeConfig } = useTheme();
   const router = useRouter();
   const { spots, fetchSpots } = useSpotStore();
-  const { events, fetchEvents } = useEventStore();
+  const { events, fetchEvents, refreshEvents } = useEventStore();
   const [recentCatches, setRecentCatches] = useState<Catch[]>([]);
   const [catchesLoading, setCatchesLoading] = useState(true);
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
@@ -88,6 +90,8 @@ export default function DashboardPage() {
         const catchesData = await response.json();
         // Get the 3 most recent catches
         setRecentCatches(catchesData.slice(0, 3));
+        // Also refresh events to pick up auto-generated event catches
+        await refreshEvents();
       }
     } catch (error) {
       console.error("Error fetching recent catches:", error);
@@ -118,7 +122,7 @@ export default function DashboardPage() {
   const favoriteCount = favoriteSpots.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className={`min-h-screen ${themeConfig.gradients.background}`}>
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -189,7 +193,10 @@ export default function DashboardPage() {
           {/* Manage Catches Modal */}
           <ManageCatchesModal
             isOpen={showManageCatchesModal}
-            onClose={() => setShowManageCatchesModal(false)}
+            onClose={async () => {
+              setShowManageCatchesModal(false);
+              await refreshEvents();
+            }}
             event={currentEvent}
           />
         </div>

@@ -24,6 +24,7 @@ import {
   PhotoUpload,
   FormSection,
 } from "./CatchForm";
+import ConfirmationPopup from "@web/components/ConfirmationPopup";
 
 interface Catch {
   id: string;
@@ -66,6 +67,9 @@ export default function ManageCatchesModal({
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isAddingCatch, setIsAddingCatch] = useState(false);
   const [editingCatchId, setEditingCatchId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
+    null
+  );
   const [showFishDropdown, setShowFishDropdown] = useState(false);
   const [showBaitDropdown, setShowBaitDropdown] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -178,26 +182,29 @@ export default function ManageCatchesModal({
   };
 
   // Handle delete catch
-  const handleDeleteCatch = async (catchId: string) => {
+  const handleDeleteCatch = (catchId: string) => {
     if (onDeleteCatch) {
       // Parent component handles confirmation
       onDeleteCatch(catchId);
     } else {
-      // Show confirmation only when no parent handler is provided
-      if (confirm("Are you sure you want to delete this catch?")) {
-        setIsDeleting(catchId);
-        try {
-          await deleteCatch(catchId);
-          // Update the event's catches list to remove the deleted catch
-          if (event?.id) {
-            removeEventCatch(event.id, catchId);
-          }
-        } catch (error) {
-          console.error("Error deleting catch:", error);
-        } finally {
-          setIsDeleting(null);
-        }
+      // Show confirmation popup
+      setShowDeleteConfirm(catchId);
+    }
+  };
+
+  const confirmDeleteCatch = async (catchId: string) => {
+    setIsDeleting(catchId);
+    try {
+      await deleteCatch(catchId);
+      // Update the event's catches list to remove the deleted catch
+      if (event?.id) {
+        removeEventCatch(event.id, catchId);
       }
+      setShowDeleteConfirm(null);
+    } catch (error) {
+      console.error("Error deleting catch:", error);
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -940,6 +947,21 @@ export default function ManageCatchesModal({
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={showDeleteConfirm !== null}
+        onClose={() => setShowDeleteConfirm(null)}
+        onConfirm={() =>
+          showDeleteConfirm && confirmDeleteCatch(showDeleteConfirm)
+        }
+        title="Delete Catch"
+        message="Are you sure you want to delete this catch? This action cannot be undone."
+        type="danger"
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting === showDeleteConfirm}
+      />
     </div>
   );
 }

@@ -69,7 +69,6 @@ export async function seedBaits() {
 
     await prisma.bait.createMany({
       data: formatted,
-      skipDuplicates: true,
     });
   } catch (error) {
     throw error;

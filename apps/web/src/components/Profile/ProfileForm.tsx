@@ -53,7 +53,7 @@ export default function ProfileForm({
   onSubmit,
 }: ProfileFormProps) {
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 mt-6">
+    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
       <div className="flex items-center space-x-3 mb-6">
         <div className="p-2 bg-gray-700/50 rounded-lg">
           <Settings className="w-5 h-5 text-blue-400" />
