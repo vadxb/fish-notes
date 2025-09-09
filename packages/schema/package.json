@@ -4,10 +4,15 @@
   "private": true,
   "scripts": {
     "seed": "tsx seed.ts",
-    "test-water-bodies": "tsx seedWaterBodies.ts test",
-    "seed-water-bodies": "tsx seedWaterBodies.ts seed",
+    "seed-fresh": "tsx seedFresh.ts",
+    "seed-countries": "tsx seedCountries.ts",
     "seed-fish": "tsx seedFish.ts",
     "seed-baits": "tsx seedBaits.ts",
+    "seed-water-bodies": "tsx seedWaterBodies.ts",
+    "seed-test-users": "tsx seedTestUsers.ts",
+    "verify-deployment": "tsx verify-deployment.ts",
+    "vercel-build": "tsx vercel-build.ts",
+    "test-water-bodies": "tsx seedWaterBodies.ts test",
     "preview-fish": "tsx previewFish.ts"
   },
   "dependencies": {
