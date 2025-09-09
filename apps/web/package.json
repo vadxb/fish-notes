@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && next build --turbopack",
+    "build": "prisma generate --schema=../../packages/schema/schema.prisma && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate --schema=../../packages/schema/schema.prisma"
   },
   "prisma": {
-    "seed": "ts-node ./prisma/seed.ts"
+    "schema": "../../packages/schema/schema.prisma",
+    "seed": "ts-node ../../packages/schema/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
