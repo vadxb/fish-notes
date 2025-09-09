@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
       weight: number | null;
       bait: string | null;
       location: string | null;
-      photoUrls: string[] | null;
+      photoUrls: any;
       createdAt: Date;
       isShared: boolean;
       user: {
