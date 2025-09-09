@@ -1,32 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 
 export const useAuth = () => {
-  const [isClient, setIsClient] = useState(false);
-  
-  // Only use store on client side
-  const store = useAuthStore();
   const {
     user,
     login: storeLogin,
     logout: storeLogout,
     setUser,
     syncCookie,
-  } = store || { user: null, login: () => {}, logout: () => {}, setUser: () => {}, syncCookie: () => {} };
+  } = useAuthStore();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    // Sync cookie from localStorage on mount
-    syncCookie();
-    checkAuth();
-  }, [syncCookie]);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/auth/me");
@@ -45,7 +31,13 @@ export const useAuth = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [setUser, storeLogout]);
+
+  useEffect(() => {
+    // Sync cookie from localStorage on mount
+    syncCookie();
+    checkAuth();
+  }, [syncCookie, checkAuth]);
 
   const login = async (email: string, password: string) => {
     const response = await fetch("/api/auth/login", {
