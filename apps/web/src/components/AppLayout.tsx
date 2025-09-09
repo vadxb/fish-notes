@@ -100,6 +100,11 @@ function AppLayoutContent({ children }: AppLayoutProps) {
     }
   };
 
+  // For public pages (About, Auth), don't show loading state
+  if (isAuthPage || isAboutPage) {
+    return <>{children}</>;
+  }
+
   // Show loading state only when actually loading on client (not during SSR)
   if (isClient && loading) {
     return (
@@ -110,10 +115,6 @@ function AppLayoutContent({ children }: AppLayoutProps) {
         </div>
       </div>
     );
-  }
-
-  if (isAuthPage || isAboutPage) {
-    return <>{children}</>;
   }
 
   return (

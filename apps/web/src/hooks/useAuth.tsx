@@ -40,7 +40,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (!isClient) return;
-    
+
     // Sync cookie from localStorage on mount
     syncCookie();
     checkAuth();
