@@ -204,13 +204,11 @@ export const useCatchStore = create<CatchState>()(
               catch_.id === id ? { ...catch_, isShared: data.isShared } : catch_
             ),
           }));
-          return true;
         } catch (error) {
           set({
             error:
               error instanceof Error ? error.message : "Failed to toggle share",
           });
-          return false;
         }
       },
 
