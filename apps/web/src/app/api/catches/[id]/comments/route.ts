@@ -43,6 +43,7 @@ export async function GET(
         id: string;
         username: string | null;
         name: string | null;
+        avatar: string | null;
       };
       createdAt: Date;
     }) => ({
