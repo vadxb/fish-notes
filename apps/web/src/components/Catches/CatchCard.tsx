@@ -33,6 +33,8 @@ interface CatchCardProps {
     name?: string;
     username?: string;
     avatar?: string | null;
+    subscription?: string | null;
+    premiumExpiresAt?: string | Date | null;
   };
   onEdit: () => void;
   onDelete: (catchId: string) => void;
