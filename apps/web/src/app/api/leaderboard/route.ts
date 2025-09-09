@@ -94,8 +94,8 @@ export async function GET(request: NextRequest) {
       leaderboard: leaderboard.map((user, index) => ({
         ...user,
         rank: index + 1,
-        total_weight: parseFloat(user.total_weight) || 0,
-        catch_count: parseInt(user.catch_count) || 0,
+        total_weight: parseFloat(user.totalWeight.toString()) || 0,
+        catch_count: parseInt(user.catchCount.toString()) || 0,
       })),
     });
   } catch (error) {
