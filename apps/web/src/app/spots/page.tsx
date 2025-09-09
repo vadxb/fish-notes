@@ -55,8 +55,8 @@ export default function SpotsPage() {
     }
   }, [searchParams, isClient]);
 
-  // Show loading state while checking authentication (only on client)
-  if (!isClient || loading) {
+  // Show loading state only during SSR (not during navigation)
+  if (!isClient) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
