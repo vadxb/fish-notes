@@ -21,10 +21,11 @@ export function isFreeUser(user: SubscriptionUser): boolean {
   // Handle null/undefined subscription as "free"
   const subscription = user.subscription || "free";
   const isFree = subscription === "free";
-  const isExpired =
+  const isExpired = Boolean(
     subscription === "premium" &&
     user.premiumExpiresAt &&
-    new Date(user.premiumExpiresAt) < new Date();
+    new Date(user.premiumExpiresAt) < new Date()
+  );
 
   return isFree || isExpired;
 }
