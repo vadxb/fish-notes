@@ -90,7 +90,48 @@ export async function GET(request: NextRequest) {
     const currentUserId = currentUser?.id || null;
 
     // Transform data to match frontend interface
-    const transformedCatches = catches.map((catchItem: any) => ({
+    const transformedCatches = catches.map((catchItem: {
+      id: string;
+      species: string;
+      comments: string | null;
+      weight: number | null;
+      photoUrls: string[];
+      createdAt: Date;
+      isShared: boolean;
+      user: {
+        id: string;
+        username: string | null;
+        name: string | null;
+        avatar: string | null;
+      };
+      spot: {
+        id: string;
+        name: string;
+        latitude: number;
+        longitude: number;
+      } | null;
+      event: {
+        id: string;
+        title: string;
+        startAt: Date;
+      } | null;
+      likes: Array<{
+        user: {
+          id: string;
+          username: string | null;
+          name: string | null;
+          avatar: string | null;
+        };
+      }>;
+      catchComments: Array<{
+        user: {
+          id: string;
+          username: string | null;
+          name: string | null;
+          avatar: string | null;
+        };
+      }>;
+    }) => ({
       id: catchItem.id,
       title: `${catchItem.species} Catch`,
       description:
