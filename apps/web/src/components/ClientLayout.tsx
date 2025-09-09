@@ -16,9 +16,13 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     setIsClient(true);
   }, []);
 
-  // Don't render contexts during SSR
+  // Don't render contexts during SSR - just return children
   if (!isClient) {
-    return <>{children}</>;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
+        {children}
+      </div>
+    );
   }
 
   return (
