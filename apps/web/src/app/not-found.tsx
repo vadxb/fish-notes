@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function NotFound() {
   return (
     <html lang="en">
@@ -61,9 +59,10 @@ export default function NotFound() {
           <p className="description">
             The page you&apos;re looking for doesn&apos;t exist.
           </p>
-          <Link href="/" className="link">
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/" className="link">
             Go Home
-          </Link>
+          </a>
         </div>
       </body>
     </html>
