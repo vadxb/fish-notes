@@ -26,13 +26,23 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const { user } = useAuth();
-  const { setUser } = useAuthStore();
   const [currentTheme, setCurrentTheme] = useState<ThemeId>("night-fishing");
   const [isLoading, setIsLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure we're on the client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Only use auth hooks on client side
+  const { user } = useAuth();
+  const { setUser } = useAuthStore();
 
   // Load theme from user data
   useEffect(() => {
+    if (!isClient) return;
+    
     if (user) {
       if (user.theme) {
         setCurrentTheme(user.theme as ThemeId);
@@ -41,10 +51,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         setCurrentTheme("night-fishing");
       }
       setIsLoading(false);
+    } else {
+      // No user, use default theme
+      setCurrentTheme("night-fishing");
+      setIsLoading(false);
     }
-  }, [user]);
+  }, [user, isClient]);
 
   const setTheme = async (themeId: ThemeId) => {
+    if (!isClient) return;
+    
     try {
       // Update theme in database
       const response = await fetch("/api/profile", {
