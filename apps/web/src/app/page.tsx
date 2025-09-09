@@ -53,12 +53,18 @@ export default function HomePage() {
     return (
       <div
         className={`min-h-screen ${
-          isClient ? themeConfig.gradients.background : "bg-gradient-to-br from-slate-900 to-blue-900"
+          isClient
+            ? themeConfig.gradients.background
+            : "bg-gradient-to-br from-slate-900 to-blue-900"
         } flex items-center justify-center`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className={isClient ? themeConfig.colors.text.secondary : "text-gray-400"}>
+          <p
+            className={
+              isClient ? themeConfig.colors.text.secondary : "text-gray-400"
+            }
+          >
             Redirecting to dashboard...
           </p>
         </div>
@@ -204,8 +210,8 @@ export default function HomePage() {
               Everything You Need for Fishing
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From logging catches to discovering new spots, Fisherman&apos;s Notes
-              provides all the tools you need to enhance your fishing
+              From logging catches to discovering new spots, Fisherman&apos;s
+              Notes provides all the tools you need to enhance your fishing
               experience.
             </p>
           </div>

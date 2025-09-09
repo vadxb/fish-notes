@@ -100,7 +100,7 @@ function AppLayoutContent({ children }: AppLayoutProps) {
     }
   };
 
-  // Show loading state only when actually loading (not during SSR)
+  // Show loading state only when actually loading on client (not during SSR)
   if (isClient && loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">

@@ -10,7 +10,8 @@ export const useAuth = () => {
     setUser,
     syncCookie,
   } = useAuthStore();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
   const checkAuth = useCallback(async () => {
     try {
@@ -34,10 +35,16 @@ export const useAuth = () => {
   }, [setUser, storeLogout]);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
     // Sync cookie from localStorage on mount
     syncCookie();
     checkAuth();
-  }, [syncCookie, checkAuth]);
+  }, [isClient, syncCookie, checkAuth]);
 
   const login = async (email: string, password: string) => {
     const response = await fetch("/api/auth/login", {

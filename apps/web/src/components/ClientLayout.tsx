@@ -19,15 +19,11 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   // Always render the same structure to prevent hydration mismatch
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
-      {isClient ? (
-        <AuthProvider>
-          <ThemeProvider>
-            <AppLayout>{children}</AppLayout>
-          </ThemeProvider>
-        </AuthProvider>
-      ) : (
-        children
-      )}
+      <AuthProvider>
+        <ThemeProvider>
+          <AppLayout>{children}</AppLayout>
+        </ThemeProvider>
+      </AuthProvider>
     </div>
   );
 }
