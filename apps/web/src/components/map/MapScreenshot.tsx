@@ -6,10 +6,7 @@ interface MapScreenshotProps {
   currentImageUrl?: string;
 }
 
-export default function MapScreenshot({
-  onScreenshot,
-  currentImageUrl,
-}: MapScreenshotProps) {
+export default function MapScreenshot({ onScreenshot }: MapScreenshotProps) {
   const [isCapturing, setIsCapturing] = useState(false);
 
   const handleScreenshot = async () => {
@@ -22,7 +19,9 @@ export default function MapScreenshot({
       const html2canvas = (await import("html2canvas")).default;
 
       // Find the map container by looking for the leaflet map
-      const mapContainer = document.querySelector(".leaflet-container");
+      const mapContainer = document.querySelector(
+        ".leaflet-container"
+      ) as HTMLElement;
 
       if (!mapContainer) {
         console.error("Map container not found");
