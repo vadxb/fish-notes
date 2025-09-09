@@ -36,8 +36,8 @@ export default function HomePage() {
     }
   }, [user, loading, router, isClient]);
 
-  // Show loading for authenticated users
-  if (!isClient || loading) {
+  // Show loading only when actually loading on client
+  if (isClient && loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
@@ -52,11 +52,13 @@ export default function HomePage() {
   if (user) {
     return (
       <div
-        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
+        className={`min-h-screen ${
+          isClient ? themeConfig.gradients.background : "bg-gradient-to-br from-slate-900 to-blue-900"
+        } flex items-center justify-center`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className={themeConfig.colors.text.secondary}>
+          <p className={isClient ? themeConfig.colors.text.secondary : "text-gray-400"}>
             Redirecting to dashboard...
           </p>
         </div>
