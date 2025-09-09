@@ -165,8 +165,7 @@ const Leaderboard = () => {
           {data.leaderboard.map((leaderboardUser) => {
             const isCurrentUser =
               user &&
-              (user.id === leaderboardUser.id ||
-                user.email === leaderboardUser.email);
+              user.id === leaderboardUser.id;
             return (
               <div
                 key={leaderboardUser.id}

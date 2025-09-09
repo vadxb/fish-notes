@@ -35,7 +35,14 @@ export default function CustomMarker({
     // Dynamically import Leaflet to avoid SSR issues
     const initMarker = async () => {
       // Check if map is ready and not in the middle of operations
-      if (!map || !map.getContainer() || map._zooming || map._animatingZoom) {
+      if (
+        !map ||
+        !map.getContainer() ||
+        (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+          ._zooming ||
+        (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+          ._animatingZoom
+      ) {
         return;
       }
 

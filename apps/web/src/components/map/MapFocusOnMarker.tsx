@@ -21,7 +21,14 @@ export default function MapFocusOnMarker({
     if (selectedMarkerIndex === null) return;
 
     // Check if map is ready and not in the middle of a zoom operation
-    if (!map || !map.getContainer() || map._zooming || map._animatingZoom)
+    if (
+      !map ||
+      !map.getContainer() ||
+      (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+        ._zooming ||
+      (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+        ._animatingZoom
+    )
       return;
 
     let targetLat: number;
@@ -42,7 +49,14 @@ export default function MapFocusOnMarker({
     // Add a delay to avoid conflicts with other map operations
     const timeoutId = setTimeout(() => {
       // Double-check map state before panning
-      if (!map || !map.getContainer() || map._zooming || map._animatingZoom) {
+      if (
+        !map ||
+        !map.getContainer() ||
+        (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+          ._zooming ||
+        (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+          ._animatingZoom
+      ) {
         return;
       }
 

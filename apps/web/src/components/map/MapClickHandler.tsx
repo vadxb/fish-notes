@@ -13,11 +13,21 @@ export function MapClickHandler({
 }: MapClickHandlerProps) {
   const lastClickTimeRef = useRef(0);
   const map = useMapEvents({
-    click: (e: { latlng: { lat: number; lng: number } }) => {
+    click: (e: {
+      latlng: { lat: number; lng: number };
+      originalEvent?: Event;
+    }) => {
       if (!interactive) return;
 
       // Check if map is in a stable state
-      if (!map || !map.getContainer() || map._zooming || map._animatingZoom) {
+      if (
+        !map ||
+        !map.getContainer() ||
+        (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+          ._zooming ||
+        (map as unknown as { _zooming?: boolean; _animatingZoom?: boolean })
+          ._animatingZoom
+      ) {
         return;
       }
 

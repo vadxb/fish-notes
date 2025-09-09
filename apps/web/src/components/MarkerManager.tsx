@@ -118,7 +118,9 @@ export default function MarkerManager({
     onCoordinatesChange(newCoordinates);
   };
 
-  const handleMapClickRef = useRef<(lat: number, lng: number) => void>();
+  const handleMapClickRef = useRef<
+    ((lat: number, lng: number) => void) | undefined
+  >(undefined);
   const isAddingMarkerRef = useRef(false);
 
   const handleMapClick = useCallback(
@@ -138,7 +140,7 @@ export default function MarkerManager({
         onMapClick(lat, lng);
       }
     },
-    [isAddingMarker, onMapClick, addMarker, selectedMarkerIndex]
+    [onMapClick, addMarker]
   );
 
   // Store the function in ref
@@ -152,7 +154,9 @@ export default function MarkerManager({
   // Expose the handleMapClick function to parent component
   useEffect(() => {
     if (onMapClickHandler) {
-      onMapClickHandler(handleMapClickRef.current || (() => {}));
+      onMapClickHandler(
+        handleMapClickRef.current || ((lat: number, lng: number) => {})
+      );
     }
   }, [onMapClickHandler]);
 
