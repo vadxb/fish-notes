@@ -46,6 +46,7 @@ export async function GET(
         avatar: string | null;
       };
       createdAt: Date;
+      updatedAt: Date;
     }) => ({
       id: comment.id,
       content: comment.content,
