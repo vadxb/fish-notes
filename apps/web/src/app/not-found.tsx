@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function NotFound() {
   return (
     <html lang="en">
@@ -59,9 +61,9 @@ export default function NotFound() {
           <p className="description">
             The page you&apos;re looking for doesn&apos;t exist.
           </p>
-          <a href="/" className="link">
+          <Link href="/" className="link">
             Go Home
-          </a>
+          </Link>
         </div>
       </body>
     </html>
