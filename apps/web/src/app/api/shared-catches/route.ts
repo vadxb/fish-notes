@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@web/lib/prisma";
-import { existsSync } from "fs";
-import { join } from "path";
+import { verifyToken } from "@web/lib/auth";
 
 // GET /api/shared-catches - Get all shared catches
 export async function GET(request: NextRequest) {
@@ -81,13 +80,17 @@ export async function GET(request: NextRequest) {
       skip: offset,
     });
 
-    // Get current user ID for like status - for now using first user as default
-    // TODO: Implement proper authentication
-    const currentUser = await prisma.user.findFirst({
-      where: { email: "dev@email.com" },
-    });
-
-    const currentUserId = currentUser?.id || null;
+    // Get current user ID for like status
+    let currentUserId = null;
+    try {
+      const token = request.cookies.get("auth-token")?.value;
+      if (token) {
+        const payload = verifyToken(token);
+        currentUserId = payload.userId;
+      }
+    } catch (error) {
+      // User not authenticated, currentUserId remains null
+    }
 
     // Transform data to match frontend interface
     const transformedCatches = catches.map(
