@@ -9,7 +9,7 @@ interface MapScreenshotProps {
 export default function MapScreenshot({
   onScreenshot,
   currentImageUrl,
-}: MapScreenshotProps): JSX.Element | null {
+}: MapScreenshotProps) {
   const [isCapturing, setIsCapturing] = useState(false);
 
   const handleScreenshot = async () => {
