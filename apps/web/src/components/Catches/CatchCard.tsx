@@ -32,7 +32,7 @@ interface CatchCardProps {
     id: string;
     name?: string;
     username?: string;
-    avatar?: string;
+    avatar?: string | null;
   };
   onEdit: () => void;
   onDelete: (catchId: string) => void;
