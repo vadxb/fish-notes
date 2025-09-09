@@ -90,90 +90,93 @@ export async function GET(request: NextRequest) {
     const currentUserId = currentUser?.id || null;
 
     // Transform data to match frontend interface
-    const transformedCatches = catches.map((catchItem: {
-      id: string;
-      species: string;
-      comments: string | null;
-      weight: number | null;
-      bait: string | null;
-      location: string | null;
-      photoUrls: string[] | string | null;
-      createdAt: Date;
-      isShared: boolean;
-      user: {
+    const transformedCatches = catches.map(
+      (catchItem: {
         id: string;
-        username: string | null;
-        name: string | null;
-        avatar: string | null;
-      };
-      spot: {
-        id: string;
-        name: string;
-        latitude: number;
-        longitude: number;
-      } | null;
-      event: {
-        id: string;
-        title: string;
-        startAt: Date;
-      } | null;
-      likes: Array<{
-        user: {
-          id: string;
-          username: string | null;
-          name: string | null;
-          avatar: string | null;
-        };
-      }>;
-      catchComments: Array<{
-        id: string;
-        content: string;
+        species: string;
+        comments: string | null;
+        weight: number | null;
+        bait: string | null;
+        location: string | null;
+        photoUrls: any;
         createdAt: Date;
-        updatedAt: Date;
+        isShared: boolean;
         user: {
           id: string;
           username: string | null;
           name: string | null;
           avatar: string | null;
         };
-      }>;
-    }) => ({
-      id: catchItem.id,
-      title: `${catchItem.species} Catch`,
-      description:
-        catchItem.comments ||
-        `Caught a ${catchItem.species}${catchItem.weight ? ` weighing ${catchItem.weight}kg` : ""}`,
-      images: catchItem.photoUrls
-        ? Array.isArray(catchItem.photoUrls)
-          ? catchItem.photoUrls
-          : [catchItem.photoUrls]
-        : [],
-      weight: catchItem.weight || 0,
-      length: null, // Will be added later
-      fishType: catchItem.species,
-      bait: catchItem.bait || "Unknown",
-      location:
-        catchItem.location || catchItem.spot?.name || "Unknown location",
-      createdAt: catchItem.createdAt.toISOString(),
-      user: {
-        id: catchItem.user.id,
-        username: catchItem.user.username || catchItem.user.name || "Anonymous",
-        avatar: catchItem.user.avatar,
-      },
-      likes: catchItem.likes.length,
-      isLiked: catchItem.likes.some((like) => like.user.id === currentUserId),
-      comments: catchItem.catchComments.map((comment) => ({
-        id: comment.id,
-        content: comment.content,
+        spot: {
+          id: string;
+          name: string;
+          latitude: number;
+          longitude: number;
+        } | null;
+        event: {
+          id: string;
+          title: string;
+          startAt: Date;
+        } | null;
+        likes: Array<{
+          user: {
+            id: string;
+            username: string | null;
+            name: string | null;
+            avatar: string | null;
+          };
+        }>;
+        catchComments: Array<{
+          id: string;
+          content: string;
+          createdAt: Date;
+          updatedAt: Date;
+          user: {
+            id: string;
+            username: string | null;
+            name: string | null;
+            avatar: string | null;
+          };
+        }>;
+      }) => ({
+        id: catchItem.id,
+        title: `${catchItem.species} Catch`,
+        description:
+          catchItem.comments ||
+          `Caught a ${catchItem.species}${catchItem.weight ? ` weighing ${catchItem.weight}kg` : ""}`,
+        images: catchItem.photoUrls
+          ? Array.isArray(catchItem.photoUrls)
+            ? catchItem.photoUrls
+            : [catchItem.photoUrls]
+          : [],
+        weight: catchItem.weight || 0,
+        length: null, // Will be added later
+        fishType: catchItem.species,
+        bait: catchItem.bait || "Unknown",
+        location:
+          catchItem.location || catchItem.spot?.name || "Unknown location",
+        createdAt: catchItem.createdAt.toISOString(),
         user: {
-          id: comment.user.id,
-          username: comment.user.username || comment.user.name || "Anonymous",
-          avatar: comment.user.avatar,
+          id: catchItem.user.id,
+          username:
+            catchItem.user.username || catchItem.user.name || "Anonymous",
+          avatar: catchItem.user.avatar,
         },
-        createdAt: comment.createdAt.toISOString(),
-        updatedAt: comment.updatedAt.toISOString(),
-      })),
-    }));
+        likes: catchItem.likes.length,
+        isLiked: catchItem.likes.some((like) => like.user.id === currentUserId),
+        comments: catchItem.catchComments.map((comment) => ({
+          id: comment.id,
+          content: comment.content,
+          user: {
+            id: comment.user.id,
+            username: comment.user.username || comment.user.name || "Anonymous",
+            avatar: comment.user.avatar,
+          },
+          createdAt: comment.createdAt.toISOString(),
+          updatedAt: comment.updatedAt.toISOString(),
+        })),
+      })
+    );
 
     return NextResponse.json({
       catches: transformedCatches,
