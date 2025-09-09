@@ -36,7 +36,16 @@ export async function GET(
       orderBy: { createdAt: "asc" },
     });
 
-    const transformedComments = comments.map((comment) => ({
+    const transformedComments = comments.map((comment: {
+      id: string;
+      content: string;
+      user: {
+        id: string;
+        username: string | null;
+        name: string | null;
+      };
+      createdAt: Date;
+    }) => ({
       id: comment.id,
       content: comment.content,
       user: {
