@@ -213,9 +213,28 @@ export async function DELETE(
       // Don't fail the entire deletion if photos can't be deleted
     }
 
-    // Delete the catch from database
-    await prisma.catch.delete({
-      where: { id },
+    // Delete related records first to avoid foreign key constraints
+    await prisma.$transaction(async (tx) => {
+      // Delete catch comments
+      await tx.catchComment.deleteMany({
+        where: { catchId: id },
+      });
+
+      // Delete catch likes
+      await tx.catchLike.deleteMany({
+        where: { catchId: id },
+      });
+
+      // Update any events that reference this catch
+      await tx.event.updateMany({
+        where: { catches: { some: { id } } },
+        data: { catches: { disconnect: { id } } },
+      });
+
+      // Finally delete the catch
+      await tx.catch.delete({
+        where: { id },
+      });
     });
 
     return NextResponse.json({
@@ -224,6 +243,17 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("Error deleting catch:", error);
+    
+    // Handle specific Prisma errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      if (error.code === 'P2003') {
+        return NextResponse.json(
+          { error: "Cannot delete catch: it has related data that must be removed first" },
+          { status: 400 }
+        );
+      }
+    }
+    
     return NextResponse.json(
       {
         error: `Failed to delete catch: ${error instanceof Error ? error.message : "Unknown error"}`,
