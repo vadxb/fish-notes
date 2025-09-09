@@ -29,7 +29,6 @@ export default function ConfirmationPopupExample() {
 
   const handleConfirm = () => {
     // Simulate async operation
-    console.log("Confirmed action");
     closePopup();
   };
 

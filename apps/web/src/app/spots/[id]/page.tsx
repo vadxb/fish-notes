@@ -168,10 +168,6 @@ export default function EditSpotPage({ params }: EditSpotPageProps) {
   );
 
   const handleMapScreenshot = useCallback((imageData: string) => {
-    console.log(
-      "handleMapScreenshot called with imageData length:",
-      imageData.length
-    );
     setMapImage(imageData);
   }, []);
 

@@ -28,7 +28,6 @@ export default function MapScreenshot({ onScreenshot }: MapScreenshotProps) {
         return;
       }
 
-      console.log("Taking screenshot of map container...");
 
       // Take screenshot with simple, reliable settings
       const canvas = await html2canvas(mapContainer, {
@@ -53,12 +52,6 @@ export default function MapScreenshot({ onScreenshot }: MapScreenshotProps) {
         },
       });
 
-      console.log(
-        "Screenshot captured, size:",
-        canvas.width,
-        "x",
-        canvas.height
-      );
 
       // Convert to blob and then to data URL
       const blob = await new Promise<Blob>((resolve) => {
@@ -70,7 +63,6 @@ export default function MapScreenshot({ onScreenshot }: MapScreenshotProps) {
       const reader = new FileReader();
       reader.onload = () => {
         const imageData = reader.result as string;
-        console.log("Screenshot ready, data length:", imageData.length);
         onScreenshot(imageData);
       };
       reader.readAsDataURL(blob);

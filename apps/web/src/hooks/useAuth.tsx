@@ -57,17 +57,13 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
-    console.log("useAuth: Starting logout");
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      console.log("useAuth: Logout API call successful");
     } catch (error) {
       console.error("Logout API call failed:", error);
       // Continue with logout even if API call fails
     }
-    console.log("useAuth: Calling storeLogout");
     storeLogout();
-    console.log("useAuth: Logout completed");
 
     // Force a page reload to ensure clean state
     window.location.href = "/login";

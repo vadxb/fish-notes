@@ -96,11 +96,9 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
       try {
-        console.log("Fetching profile...");
         const response = await fetch("/api/profile");
         if (response.ok) {
           const userData = await response.json();
-          console.log("Profile data received:", userData);
           setProfile(userData);
           setFormData({
             name: userData.name || "",
@@ -137,7 +135,6 @@ export default function ProfilePage() {
 
   // Don't render if user is null
   if (!user) {
-    console.log("Profile page: user is null");
     return (
       <div
         className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
@@ -152,7 +149,6 @@ export default function ProfilePage() {
 
   // If profile is not loaded yet, show loading state
   if (!profile) {
-    console.log("Profile page: profile is null, showing loading");
     return (
       <div
         className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}

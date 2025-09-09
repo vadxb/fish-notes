@@ -44,14 +44,11 @@ export function middleware(request: NextRequest) {
   // Handle protected routes
   if (isProtectedRoute) {
     if (!token) {
-      console.log("Middleware: No token found, redirecting to login");
       return NextResponse.redirect(new URL("/login", request.url));
     }
 
     const payload = verifyToken(token);
     if (!payload) {
-      console.log("Middleware: Invalid token, redirecting to login");
-      console.log("Token:", token?.substring(0, 50) + "...");
       const response = NextResponse.redirect(new URL("/login", request.url));
       // Clear cookie with same settings as login route
       response.cookies.set("auth-token", "", {

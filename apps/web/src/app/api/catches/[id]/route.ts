@@ -200,9 +200,7 @@ export async function DELETE(
             const filePath = join(process.cwd(), "public", photoUrl as string);
             if (existsSync(filePath)) {
               await unlink(filePath);
-              console.log(`Deleted file: ${filePath}`);
             } else {
-              console.log(`File not found, skipping: ${filePath}`);
             }
           } catch (fileError) {
             console.error(`Error deleting file ${photoUrl}:`, fileError);

@@ -46,11 +46,9 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const handleLogout = async () => {
     if (isLoggingOut) return; // Prevent multiple clicks
 
-    console.log("Sidebar: Starting logout process");
     setIsLoggingOut(true);
     try {
       await logout();
-      console.log("Sidebar: Logout completed");
       // Note: logout() now handles the redirect with window.location.href
     } catch (error) {
       console.error("Logout error:", error);

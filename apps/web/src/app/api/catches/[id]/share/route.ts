@@ -26,7 +26,6 @@ export async function PATCH(
       select: { id: true, userId: true },
     });
 
-    console.log("Existing catch:", existingCatch);
 
     if (!existingCatch) {
       return NextResponse.json({ error: "Catch not found" }, { status: 404 });
@@ -48,12 +47,6 @@ export async function PATCH(
 
     const currentSharedStatus = currentCatch[0].isShared || false;
     const newSharedStatus = !currentSharedStatus;
-    console.log(
-      "Toggling isShared from",
-      currentSharedStatus,
-      "to",
-      newSharedStatus
-    );
 
     // Update using raw query
     await prisma.$executeRaw`

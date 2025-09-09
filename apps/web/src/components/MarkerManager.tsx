@@ -61,7 +61,6 @@ export default function MarkerManager({
 
       // Prevent adding multiple markers if not in adding mode
       if (!isAddingMarkerRef.current) {
-        console.log("Not in adding mode, ignoring addMarker call");
         return;
       }
 

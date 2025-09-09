@@ -42,7 +42,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   // Load theme from user data
   useEffect(() => {
     if (!isClient) return;
-    
+
     if (user) {
       if (user.theme) {
         setCurrentTheme(user.theme as ThemeId);
@@ -60,7 +60,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   const setTheme = async (themeId: ThemeId) => {
     if (!isClient) return;
-    
+
     try {
       // Update theme in database
       const response = await fetch("/api/profile", {
