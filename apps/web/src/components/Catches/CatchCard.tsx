@@ -30,8 +30,8 @@ interface CatchCardProps {
   };
   user: {
     id: string;
-    name: string | undefined;
-    username: string | undefined;
+    name?: string;
+    username?: string;
     avatar?: string;
   };
   onEdit: () => void;
