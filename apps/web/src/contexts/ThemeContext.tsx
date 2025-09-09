@@ -16,7 +16,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    // Return default theme for SSR
+    return {
+      currentTheme: "night-fishing" as ThemeId,
+      themeConfig: getTheme("night-fishing"),
+      setTheme: () => {},
+      isLoading: true,
+    };
   }
   return context;
 }

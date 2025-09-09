@@ -159,12 +159,10 @@ export default function CollectionPage() {
   // Show loading state while checking authentication
   if (!isClient || loading) {
     return (
-      <div
-        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
-      >
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className={themeConfig.colors.text.secondary}>
+          <p className="text-gray-400">
             Loading collection...
           </p>
         </div>
@@ -175,9 +173,7 @@ export default function CollectionPage() {
   // Show message if countries haven't loaded or no country selected
   if (countries.length === 0 || !selectedCountry) {
     return (
-      <div
-        className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center`}
-      >
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg w-fit mx-auto mb-4">
             <Fish className="w-8 h-8 text-blue-400" />

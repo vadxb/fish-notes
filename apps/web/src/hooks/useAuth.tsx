@@ -3,14 +3,22 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 
 export const useAuth = () => {
+  const [isClient, setIsClient] = useState(false);
+  
+  // Only use store on client side
+  const store = useAuthStore();
   const {
     user,
     login: storeLogin,
     logout: storeLogout,
     setUser,
     syncCookie,
-  } = useAuthStore();
+  } = store || { user: null, login: () => {}, logout: () => {}, setUser: () => {}, syncCookie: () => {} };
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     // Sync cookie from localStorage on mount

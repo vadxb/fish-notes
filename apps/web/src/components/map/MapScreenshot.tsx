@@ -28,7 +28,6 @@ export default function MapScreenshot({ onScreenshot }: MapScreenshotProps) {
         return;
       }
 
-
       // Take screenshot with simple, reliable settings
       const canvas = await html2canvas(mapContainer, {
         backgroundColor: "#ffffff",
@@ -51,7 +50,6 @@ export default function MapScreenshot({ onScreenshot }: MapScreenshotProps) {
           );
         },
       });
-
 
       // Convert to blob and then to data URL
       const blob = await new Promise<Blob>((resolve) => {
