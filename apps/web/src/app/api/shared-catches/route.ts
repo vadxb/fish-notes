@@ -86,7 +86,9 @@ export async function GET(request: NextRequest) {
       const token = request.cookies.get("auth-token")?.value;
       if (token) {
         const payload = verifyToken(token);
-        currentUserId = payload.userId;
+        if (payload) {
+          currentUserId = payload.userId;
+        }
       }
     } catch (error) {
       // User not authenticated, currentUserId remains null
