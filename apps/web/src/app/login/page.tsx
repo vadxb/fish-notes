@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@ui/Button";
 import { FishingLogo } from "@ui/Logo/FishingLogo";
 import { useAuth } from "@web/hooks/useAuth";
@@ -12,9 +12,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const { login } = useAuth();
   const { themeConfig } = useTheme();
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +38,9 @@ export default function LoginPage() {
 
   return (
     <div
-      className={`min-h-screen ${themeConfig.gradients.background} flex items-center justify-center p-4`}
+      className={`min-h-screen ${
+        isClient ? themeConfig.gradients.background : "bg-gradient-to-br from-slate-900 to-blue-900"
+      } flex items-center justify-center p-4`}
     >
       <div className="w-full max-w-md">
         {/* Logo/Header */}

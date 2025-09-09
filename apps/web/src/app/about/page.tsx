@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   MapPin,
   Fish,
@@ -21,6 +21,11 @@ import {
 export default function AboutPage() {
   const [activeScreenshot, setActiveScreenshot] = useState(0);
   const [activeTheme, setActiveTheme] = useState(0);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const nextTheme = () => {
     setActiveTheme((prev) => (prev + 1) % themes.length);
@@ -435,51 +440,74 @@ export default function AboutPage() {
             {/* Theme Carousel */}
             <div className="relative lg:col-span-2">
               <div className="rounded-2xl overflow-hidden shadow-2xl">
-                <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center min-h-[600px]">
-                  <img
-                    src={themes[activeTheme].image}
-                    alt={`${themes[activeTheme].name} theme preview`}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      // Fallback to placeholder if image doesn't exist
-                      e.currentTarget.style.display = "none";
-                      const nextElement = e.currentTarget
-                        .nextElementSibling as HTMLElement;
-                      if (nextElement) {
-                        nextElement.style.display = "flex";
-                      }
-                    }}
-                  />
-                  <div className="hidden flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
+              <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center min-h-[600px]">
+                {isClient ? (
+                  <>
+                    <img
+                      src={themes[activeTheme].image}
+                      alt={`${themes[activeTheme].name} theme preview`}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        // Fallback to placeholder if image doesn't exist
+                        e.currentTarget.style.display = "none";
+                        const nextElement = e.currentTarget
+                          .nextElementSibling as HTMLElement;
+                        if (nextElement) {
+                          nextElement.style.display = "flex";
+                        }
+                      }}
+                    />
+                    <div className="hidden flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
+                      <div className="text-6xl mb-4">
+                        {themes[activeTheme].icon}
+                      </div>
+                      <p className="text-lg font-medium mb-2">
+                        {themes[activeTheme].name} Theme
+                      </p>
+                      <p className="text-sm text-center max-w-xs">
+                        Theme preview placeholder - Replace with actual image
+                      </p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        File: {themes[activeTheme].image}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
                     <div className="text-6xl mb-4">
-                      {themes[activeTheme].icon}
+                      {themes[0].icon}
                     </div>
                     <p className="text-lg font-medium mb-2">
-                      {themes[activeTheme].name} Theme
+                      {themes[0].name} Theme
                     </p>
                     <p className="text-sm text-center max-w-xs">
                       Theme preview placeholder - Replace with actual image
                     </p>
                     <p className="text-xs text-gray-400 mt-2">
-                      File: {themes[activeTheme].image}
+                      File: {themes[0].image}
                     </p>
                   </div>
-                </div>
+                )}
+              </div>
               </div>
 
               {/* Carousel Navigation */}
-              <button
-                onClick={prevTheme}
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={nextTheme}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
+              {isClient && (
+                <>
+                  <button
+                    onClick={prevTheme}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={nextTheme}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Theme Details */}
@@ -487,14 +515,14 @@ export default function AboutPage() {
               <div>
                 <div className="flex items-center mb-4">
                   <span className="text-4xl mr-4">
-                    {themes[activeTheme].icon}
+                    {isClient ? themes[activeTheme].icon : themes[0].icon}
                   </span>
                   <h3 className="text-2xl font-bold text-gray-900">
-                    {themes[activeTheme].name}
+                    {isClient ? themes[activeTheme].name : themes[0].name}
                   </h3>
                 </div>
                 <p className="text-gray-600 text-lg mb-6">
-                  {themes[activeTheme].description}
+                  {isClient ? themes[activeTheme].description : themes[0].description}
                 </p>
               </div>
 
@@ -504,7 +532,7 @@ export default function AboutPage() {
                   Color Palette
                 </h4>
                 <div className="flex space-x-3">
-                  {themes[activeTheme].colors.map((color, index) => (
+                  {(isClient ? themes[activeTheme].colors : themes[0].colors).map((color, index) => (
                     <div
                       key={index}
                       className="w-12 h-12 rounded-lg shadow-md"
@@ -521,7 +549,7 @@ export default function AboutPage() {
                   Key Features
                 </h4>
                 <ul className="space-y-2">
-                  {themes[activeTheme].features.map((feature, index) => (
+                  {(isClient ? themes[activeTheme].features : themes[0].features).map((feature, index) => (
                     <li key={index} className="flex items-center text-gray-600">
                       <CheckCircle className="w-5 h-5 text-blue-600 mr-3" />
                       {feature}
@@ -531,19 +559,21 @@ export default function AboutPage() {
               </div>
 
               {/* Theme Navigation Dots */}
-              <div className="flex space-x-2">
-                {themes.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveTheme(index)}
-                    className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                      activeTheme === index
-                        ? "bg-blue-600 scale-125"
-                        : "bg-gray-300 hover:bg-gray-400"
-                    }`}
-                  />
-                ))}
-              </div>
+              {isClient && (
+                <div className="flex space-x-2">
+                  {themes.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setActiveTheme(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        activeTheme === index
+                          ? "bg-blue-600 scale-125"
+                          : "bg-gray-300 hover:bg-gray-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -595,48 +625,69 @@ export default function AboutPage() {
             {/* Screenshot Column - Bigger */}
             <div className="lg:col-span-2">
               <div className="relative">
-                <div className="aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center min-h-[600px] shadow-lg">
-                  <img
-                    src={screenshots[activeScreenshot].image}
-                    alt={screenshots[activeScreenshot].alt}
-                    className="w-full h-full object-contain"
-                    onError={(e) => {
-                      // Fallback to placeholder if image doesn't exist
-                      e.currentTarget.style.display = "none";
-                      const nextElement = e.currentTarget
-                        .nextElementSibling as HTMLElement;
-                      if (nextElement) {
-                        nextElement.style.display = "flex";
-                      }
-                    }}
-                  />
-                  <div className="hidden flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
+              <div className="aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center min-h-[600px] shadow-lg">
+                {isClient ? (
+                  <>
+                    <img
+                      src={screenshots[activeScreenshot].image}
+                      alt={screenshots[activeScreenshot].alt}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        // Fallback to placeholder if image doesn't exist
+                        e.currentTarget.style.display = "none";
+                        const nextElement = e.currentTarget
+                          .nextElementSibling as HTMLElement;
+                        if (nextElement) {
+                          nextElement.style.display = "flex";
+                        }
+                      }}
+                    />
+                    <div className="hidden flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
+                      <Camera className="w-16 h-16 mb-4 text-gray-400" />
+                      <p className="text-lg font-medium mb-2">
+                        {screenshots[activeScreenshot].title}
+                      </p>
+                      <p className="text-sm text-center max-w-xs">
+                        Screenshot placeholder - Replace with actual image
+                      </p>
+                      <p className="text-xs text-gray-400 mt-2">
+                        File: {screenshots[activeScreenshot].image}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
                     <Camera className="w-16 h-16 mb-4 text-gray-400" />
                     <p className="text-lg font-medium mb-2">
-                      {screenshots[activeScreenshot].title}
+                      {screenshots[0].title}
                     </p>
                     <p className="text-sm text-center max-w-xs">
                       Screenshot placeholder - Replace with actual image
                     </p>
                     <p className="text-xs text-gray-400 mt-2">
-                      File: {screenshots[activeScreenshot].image}
+                      File: {screenshots[0].image}
                     </p>
                   </div>
-                </div>
+                )}
+              </div>
 
                 {/* Screenshot Navigation */}
-                <button
-                  onClick={prevScreenshot}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={nextScreenshot}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
+                {isClient && (
+                  <>
+                    <button
+                      onClick={prevScreenshot}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      onClick={nextScreenshot}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 rounded-full p-2 shadow-lg transition-all duration-200"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -646,12 +697,12 @@ export default function AboutPage() {
                 {screenshots.map((screenshot, index) => (
                   <div
                     key={screenshot.id}
-                    className={`p-4 rounded-lg cursor-pointer transition-all ${
-                      activeScreenshot === index
+                    className={`p-4 rounded-lg transition-all ${
+                      isClient && activeScreenshot === index
                         ? "bg-blue-50 border-2 border-blue-200"
                         : "bg-gray-50 hover:bg-gray-100"
-                    }`}
-                    onClick={() => setActiveScreenshot(index)}
+                    } ${isClient ? "cursor-pointer" : ""}`}
+                    onClick={isClient ? () => setActiveScreenshot(index) : undefined}
                   >
                     <h3 className="text-base font-semibold text-gray-900 mb-1">
                       {screenshot.title}
