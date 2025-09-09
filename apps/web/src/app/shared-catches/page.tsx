@@ -278,7 +278,7 @@ const SharedCatchesPage = () => {
         <div className="text-center">
           <p className="text-red-400 text-lg mb-4">Error: {error}</p>
           <button
-            onClick={() => fetchSharedCatches(userId)}
+            onClick={() => fetchAllCatches()}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             Retry
