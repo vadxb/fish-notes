@@ -96,6 +96,7 @@ export async function PUT(request: NextRequest) {
       avatar?: string;
       theme?: string;
       countryId?: string;
+      password?: string;
     } = {};
 
     if (name !== undefined) {
