@@ -16,20 +16,18 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     setIsClient(true);
   }, []);
 
-  // Don't render contexts during SSR - just return children
-  if (!isClient) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
-        {children}
-      </div>
-    );
-  }
-
+  // Always render the same structure to prevent hydration mismatch
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <AppLayout>{children}</AppLayout>
-      </ThemeProvider>
-    </AuthProvider>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
+      {isClient ? (
+        <AuthProvider>
+          <ThemeProvider>
+            <AppLayout>{children}</AppLayout>
+          </ThemeProvider>
+        </AuthProvider>
+      ) : (
+        children
+      )}
+    </div>
   );
 }
