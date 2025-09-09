@@ -95,7 +95,9 @@ export async function GET(request: NextRequest) {
       species: string;
       comments: string | null;
       weight: number | null;
-      photoUrls: string[];
+      bait: string | null;
+      location: string | null;
+      photoUrls: any;
       createdAt: Date;
       isShared: boolean;
       user: {
