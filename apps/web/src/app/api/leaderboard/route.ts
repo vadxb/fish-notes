@@ -38,11 +38,12 @@ export async function GET(request: NextRequest) {
     }
 
     let leaderboard: Array<{
-      userId: string;
+      id: string;
+      name: string;
       username: string;
-      totalWeight: number;
-      totalLength: number;
-      catchCount: number;
+      avatar: string;
+      total_weight: number;
+      catch_count: number;
     }> = [];
 
     if (metric === "weight") {
@@ -88,14 +89,24 @@ export async function GET(request: NextRequest) {
       `;
     }
 
+    // Convert BigInt values to numbers for JSON serialization
+    const processedLeaderboard = leaderboard.map(user => ({
+      ...user,
+      total_weight: Number(user.total_weight),
+      catch_count: Number(user.catch_count),
+    }));
+
     return NextResponse.json({
       period,
       metric,
-      leaderboard: leaderboard.map((user, index) => ({
-        ...user,
+      leaderboard: processedLeaderboard.map((user, index) => ({
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        avatar: user.avatar,
         rank: index + 1,
-        total_weight: parseFloat(user.totalWeight.toString()) || 0,
-        catch_count: parseInt(user.catchCount.toString()) || 0,
+        total_weight: user.total_weight || 0,
+        catch_count: user.catch_count || 0,
       })),
     });
   } catch (error) {

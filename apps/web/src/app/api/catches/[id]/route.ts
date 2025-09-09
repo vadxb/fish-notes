@@ -243,17 +243,20 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("Error deleting catch:", error);
-    
+
     // Handle specific Prisma errors
-    if (error && typeof error === 'object' && 'code' in error) {
-      if (error.code === 'P2003') {
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === "P2003") {
         return NextResponse.json(
-          { error: "Cannot delete catch: it has related data that must be removed first" },
+          {
+            error:
+              "Cannot delete catch: it has related data that must be removed first",
+          },
           { status: 400 }
         );
       }
     }
-    
+
     return NextResponse.json(
       {
         error: `Failed to delete catch: ${error instanceof Error ? error.message : "Unknown error"}`,

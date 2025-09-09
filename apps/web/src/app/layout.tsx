@@ -34,4 +34,4 @@ export default function RootLayout({
 }
 
 // Disable static generation to prevent context issues
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
