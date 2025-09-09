@@ -139,7 +139,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
               <h1
                 className={`text-lg font-semibold ${themeConfig.header.text}`}
               >
-                Fisherman's Notes
+                Fisherman&apos;s Notes
               </h1>
             </div>
           </div>

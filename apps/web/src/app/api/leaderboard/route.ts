@@ -37,7 +37,13 @@ export async function GET(request: NextRequest) {
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     }
 
-    let leaderboard: any[] = [];
+    let leaderboard: Array<{
+      userId: string;
+      username: string;
+      totalWeight: number;
+      totalLength: number;
+      catchCount: number;
+    }> = [];
 
     if (metric === "weight") {
       // Top users by total catch weight (Premium users only)

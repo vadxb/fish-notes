@@ -23,7 +23,7 @@ export default function EventEmptyState({
             No events found
           </h3>
           <p className="text-gray-400 mb-6">
-            No events match your search for "{searchQuery}"
+            No events match your search for &ldquo;{searchQuery}&rdquo;
           </p>
         </>
       ) : (

@@ -42,7 +42,7 @@ export default function LoginPage() {
             <FishingLogo className="w-16 h-16" color="#3b82f6" />
           </div>
           <h1 className="text-3xl font-bold bg-blue-600/50 bg-clip-text text-transparent mb-2">
-            Fisherman's Notes
+            Fisherman&apos;s Notes
           </h1>
           <p className="text-gray-400">Log your catches and track your spots</p>
         </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center space-y-3">
             <p className="text-sm text-gray-400">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <a
                 href="/signup"
                 className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
@@ -154,7 +154,7 @@ export default function LoginPage() {
                 href="/about"
                 className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
               >
-                About Fisherman's Notes
+                About Fisherman&apos;s Notes
               </a>
             </p>
           </div>

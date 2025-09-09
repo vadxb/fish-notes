@@ -244,7 +244,7 @@ const Leaderboard = () => {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">
-              Today's Rankings
+              Today&apos;s Rankings
             </h3>
             <p className="text-sm text-gray-400">
               See how you stack up against other anglers

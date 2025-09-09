@@ -90,7 +90,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Prepare update data
-    const updateData: any = {};
+    const updateData: {
+      name?: string;
+      username?: string;
+      avatar?: string;
+      theme?: string;
+    } = {};
 
     if (name !== undefined) {
       updateData.name = name;

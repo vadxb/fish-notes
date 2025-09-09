@@ -236,7 +236,7 @@ const SharedCatchesPage = () => {
         const response = await fetch(`/api/shared-catches?limit=100`);
         if (response.ok) {
           const data = await response.json();
-          const updatedCatch = data.catches.find((c: any) => c.id === catchId);
+          const updatedCatch = data.catches.find((c: { id: string }) => c.id === catchId);
           if (updatedCatch) {
             setSelectedCatch(updatedCatch);
           } else {

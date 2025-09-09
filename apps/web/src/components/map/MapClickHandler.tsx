@@ -13,7 +13,7 @@ export function MapClickHandler({
 }: MapClickHandlerProps) {
   const lastClickTimeRef = useRef(0);
   const map = useMapEvents({
-    click: (e: any) => {
+    click: (e: { latlng: { lat: number; lng: number } }) => {
       if (!interactive) return;
 
       // Check if map is in a stable state

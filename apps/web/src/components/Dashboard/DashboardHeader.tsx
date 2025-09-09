@@ -18,7 +18,7 @@ export default function DashboardHeader({
         Welcome back, {userName || userEmail}!
       </h1>
       <p className={themeConfig.colors.text.muted}>
-        Here's what's happening with your fishing adventures
+        Here&apos;s what&apos;s happening with your fishing adventures
       </p>
     </div>
   );

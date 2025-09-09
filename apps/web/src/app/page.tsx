@@ -75,7 +75,7 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Fisherman's Notes
+              Fisherman&apos;s Notes
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto">
               The ultimate outdoor companion app for anglers and hunters who
@@ -204,7 +204,7 @@ export default function HomePage() {
               Everything You Need for Fishing
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From logging catches to discovering new spots, Fisherman's Notes
+              From logging catches to discovering new spots, Fisherman&apos;s Notes
               provides all the tools you need to enhance your fishing
               experience.
             </p>

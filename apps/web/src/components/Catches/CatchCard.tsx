@@ -28,7 +28,12 @@ interface CatchCardProps {
     createdAt: string;
     isShared?: boolean;
   };
-  user: any;
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    avatar?: string;
+  };
   onEdit: () => void;
   onDelete: (catchId: string) => void;
   onToggleShared: (catchId: string) => void;
@@ -196,7 +201,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
         {catch_.comments && (
           <div className="mt-2">
             <p className="text-sm text-gray-400 italic line-clamp-2">
-              "{catch_.comments}"
+              &ldquo;{catch_.comments}&rdquo;
             </p>
           </div>
         )}
