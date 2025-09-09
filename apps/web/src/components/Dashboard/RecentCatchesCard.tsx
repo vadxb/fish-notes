@@ -35,6 +35,13 @@ export default function RecentCatchesCard({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push("/catches");
+    }
+  };
+
   const handleCatchClick = (e: React.MouseEvent, catchId: string) => {
     e.stopPropagation();
     router.push(`/catches/${catchId}`);
@@ -45,12 +52,7 @@ export default function RecentCatchesCard({
       className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 hover:bg-gray-800/70 hover:border-blue-500/50 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/50"
       onClick={handleCardClick}
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleCardClick(e);
-        }
-      }}
+      onKeyDown={handleKeyDown}
     >
       {/* Header */}
       <div className="flex items-center space-x-3 p-6 pb-4">
