@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "../components/ClientLayout";
 
@@ -24,6 +24,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // During build/SSR, render minimal layout to prevent context errors
+  if (process.env.NODE_ENV === "production" && typeof window === "undefined") {
+    return (
+      <html lang="en">
+        <body className={geistSans.className}>
+          <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
+            {children}
+          </div>
+        </body>
+      </html>
+    );
+  }
+
   return (
     <html lang="en">
       <body className={geistSans.className}>

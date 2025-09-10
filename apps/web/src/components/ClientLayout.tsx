@@ -1,8 +1,5 @@
 "use client";
 
-import { AuthProvider } from "@web/hooks/useAuth";
-import { ThemeProvider } from "@web/contexts/ThemeContext";
-import AppLayout from "@web/components/AppLayout";
 import { useEffect, useState } from "react";
 
 interface ClientLayoutProps {
@@ -25,14 +22,22 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     );
   }
 
-  // On client side, render with full context providers
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
-      <AuthProvider>
-        <ThemeProvider>
-          <AppLayout>{children}</AppLayout>
-        </ThemeProvider>
-      </AuthProvider>
-    </div>
-  );
+  // On client side, dynamically import and render with full context providers
+  const ClientLayoutContent = () => {
+    const { AuthProvider } = require("@web/hooks/useAuth");
+    const { ThemeProvider } = require("@web/contexts/ThemeContext");
+    const AppLayout = require("@web/components/AppLayout").default;
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
+        <AuthProvider>
+          <ThemeProvider>
+            <AppLayout>{children}</AppLayout>
+          </ThemeProvider>
+        </AuthProvider>
+      </div>
+    );
+  };
+
+  return <ClientLayoutContent />;
 }

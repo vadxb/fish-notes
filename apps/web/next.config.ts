@@ -2,6 +2,8 @@ import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Disable static generation to prevent useContext errors during build
+  trailingSlash: false,
   images: {
     remotePatterns: [
       {
