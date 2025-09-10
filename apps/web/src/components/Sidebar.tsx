@@ -173,13 +173,14 @@ export default function Sidebar({ className = "" }: SidebarProps) {
             {/* User Info */}
             <button
               onClick={() => router.push("/profile")}
-              className={`w-full flex items-center ${
+              className={`sidebar-button w-full flex items-center ${
                 isExpanded ? "space-x-3" : "justify-center"
               } ${
                 pathname === "/profile"
                   ? `${themeConfig.colors.active.background} ${themeConfig.colors.active.text} border ${themeConfig.colors.active.border} ${themeConfig.colors.active.shadow} shadow-lg`
-                  : `${themeConfig.colors.background.hover} ${themeConfig.colors.text.secondary}`
-              } rounded-xl p-3 transition-all duration-200`}
+                  : `${themeConfig.colors.background.hover} ${themeConfig.colors.text.secondary} border-transparent`
+              } rounded-xl p-3 transition-all duration-200 focus:outline-none focus:ring-0 focus:border-transparent focus:shadow-none`}
+              style={{ outline: "none" }}
               title={isExpanded ? "" : "Profile"}
             >
               <div className="flex-shrink-0">
@@ -260,7 +261,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className={`w-full flex items-center px-3 py-3 text-sm font-medium text-red-400 rounded-xl hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`sidebar-button w-full flex items-center px-3 py-3 text-sm font-medium text-red-400 rounded-xl hover:bg-red-500/20 hover:text-red-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-0 ${
                 !isExpanded ? "justify-center" : ""
               }`}
               title={
@@ -305,7 +306,7 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                     {isMiscSection && (
                       <button
                         onClick={toggleMiscSection}
-                        className={`p-1 rounded ${themeConfig.colors.background.hover} transition-colors`}
+                        className={`sidebar-button p-1 rounded ${themeConfig.colors.background.hover} transition-colors focus:outline-none focus:ring-0`}
                         title={
                           isMiscExpanded ? "Collapse section" : "Expand section"
                         }
@@ -331,11 +332,12 @@ export default function Sidebar({ className = "" }: SidebarProps) {
                         <li key={item.name}>
                           <button
                             onClick={() => router.push(item.href)}
-                            className={`w-full flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                            className={`sidebar-button w-full flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-0 focus:border-transparent focus:shadow-none ${
                               item.current
                                 ? `${themeConfig.colors.active.background} ${themeConfig.colors.active.text} border ${themeConfig.colors.active.border} ${themeConfig.colors.active.shadow} shadow-lg`
-                                : `${themeConfig.colors.text.secondary} ${themeConfig.colors.background.hover} hover:text-white hover:shadow-lg`
+                                : `${themeConfig.colors.text.secondary} ${themeConfig.colors.background.hover} hover:text-white hover:shadow-lg border-transparent`
                             } ${!isExpanded ? "justify-center" : ""}`}
+                            style={{ outline: "none" }}
                             title={!isExpanded ? item.name : undefined}
                           >
                             <Icon

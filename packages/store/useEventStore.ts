@@ -33,6 +33,7 @@ interface EventStore {
   events: Event[];
   loading: boolean;
   error: string | null;
+  hasFetched: boolean;
   fetchEvents: () => Promise<void>;
   refreshEvents: () => Promise<void>;
   addEvent: (event: Event) => void;
@@ -45,16 +46,19 @@ interface EventStore {
   ) => void;
   addEventCatch: (eventId: string, newCatch: any) => void;
   removeEventCatch: (eventId: string, catchId: string) => void;
+  resetFetchState: () => void;
 }
 
 export const useEventStore = create<EventStore>((set, get) => ({
   events: [],
   loading: false,
   error: null,
+  hasFetched: false,
 
   fetchEvents: async () => {
-    // Don't fetch if already loading or if we have data
-    if (get().loading || get().events.length > 0) {
+    const state = get();
+    // Don't fetch if already loading or if we have already fetched
+    if (state.loading || state.hasFetched) {
       return;
     }
 
@@ -70,7 +74,12 @@ export const useEventStore = create<EventStore>((set, get) => ({
       const eventsData = await response.json();
 
       if (Array.isArray(eventsData)) {
-        set({ events: eventsData, loading: false, error: null });
+        set({
+          events: eventsData,
+          loading: false,
+          error: null,
+          hasFetched: true,
+        });
       } else {
         throw new Error("Invalid events data format");
       }
@@ -98,7 +107,12 @@ export const useEventStore = create<EventStore>((set, get) => ({
       const eventsData = await response.json();
 
       if (Array.isArray(eventsData)) {
-        set({ events: eventsData, loading: false, error: null });
+        set({
+          events: eventsData,
+          loading: false,
+          error: null,
+          hasFetched: true,
+        });
       } else {
         throw new Error("Invalid events data format");
       }
@@ -181,5 +195,9 @@ export const useEventStore = create<EventStore>((set, get) => ({
           : event
       ),
     }));
+  },
+
+  resetFetchState: () => {
+    set({ hasFetched: false, events: [], loading: false, error: null });
   },
 }));

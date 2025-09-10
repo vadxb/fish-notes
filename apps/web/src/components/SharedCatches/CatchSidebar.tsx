@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { Calendar, MapPin, Scale, Ruler } from "lucide-react";
 
 interface SharedCatch {
@@ -39,6 +45,8 @@ interface CatchSidebarProps {
   currentUserId?: string;
   selectedUserId?: string;
   loading?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => void;
 }
 
 const CatchSidebar = ({
@@ -49,30 +57,30 @@ const CatchSidebar = ({
   currentUserId,
   selectedUserId,
   loading = false,
+  hasMore = false,
+  onLoadMore,
 }: CatchSidebarProps) => {
-  const [displayedCatches, setDisplayedCatches] = useState<SharedCatch[]>([]);
-  const [hasMore, setHasMore] = useState(true);
+  // Use server-side pagination - no client-side state needed
 
-  // Ensure displayedCatches never contains duplicates
-  const uniqueDisplayedCatches = useMemo(() => {
-    const unique = displayedCatches.filter(
+  // Ensure unique catches to prevent React key conflicts
+  const uniqueCatches = useMemo(() => {
+    const unique = catches.filter(
       (catchItem, index, self) =>
         index === self.findIndex((c) => c.id === catchItem.id)
     );
 
-    if (unique.length !== displayedCatches.length) {
+    // Debug: Log if we found duplicates
+    if (unique.length !== catches.length) {
       console.warn(
-        `Found ${displayedCatches.length - unique.length} duplicate catches in displayedCatches`
+        `Found ${catches.length - unique.length} duplicate catches in catches array`
       );
     }
 
     return unique;
-  }, [displayedCatches]);
-
-  const ITEMS_PER_PAGE = 10;
+  }, [catches]);
 
   const filteredCatches = useMemo(() => {
-    return catches.filter((catchItem) => {
+    return uniqueCatches.filter((catchItem) => {
       switch (filter) {
         case "user":
           return selectedUserId ? catchItem.user.id === selectedUserId : false;
@@ -82,59 +90,9 @@ const CatchSidebar = ({
           return true;
       }
     });
-  }, [catches, filter, selectedUserId, currentUserId]);
+  }, [uniqueCatches, filter, selectedUserId, currentUserId]);
 
-  const uniqueFilteredCatches = useMemo(() => {
-    const unique = filteredCatches.filter(
-      (catchItem, index, self) =>
-        index === self.findIndex((c) => c.id === catchItem.id)
-    );
-
-    // Debug: Log if we found duplicates
-    if (unique.length !== filteredCatches.length) {
-      console.warn(
-        `Found ${filteredCatches.length - unique.length} duplicate catches in filteredCatches`
-      );
-    }
-
-    return unique;
-  }, [filteredCatches]);
-
-  const loadMoreCatches = useCallback(() => {
-    if (loading || !hasMore) return;
-
-    // Simulate API call delay
-    setTimeout(() => {
-      const startIndex = uniqueDisplayedCatches.length;
-      const endIndex = startIndex + ITEMS_PER_PAGE;
-      const newCatches = uniqueFilteredCatches.slice(startIndex, endIndex);
-
-      // Filter out any catches that are already displayed to prevent duplicates
-      const existingIds = new Set(
-        uniqueDisplayedCatches.map((catchItem) => catchItem.id)
-      );
-      const uniqueNewCatches = newCatches.filter(
-        (catchItem) => !existingIds.has(catchItem.id)
-      );
-
-      // Additional safety check: ensure no duplicates in the new catches array itself
-      const finalNewCatches = uniqueNewCatches.filter(
-        (catchItem, index, self) =>
-          index === self.findIndex((c) => c.id === catchItem.id)
-      );
-
-      if (finalNewCatches.length > 0) {
-        setDisplayedCatches((prev) => [...prev, ...finalNewCatches]);
-      }
-      setHasMore(endIndex < uniqueFilteredCatches.length);
-    }, 500);
-  }, [uniqueDisplayedCatches.length, uniqueFilteredCatches]);
-
-  // Reset when filter changes or catches array changes
-  useEffect(() => {
-    setDisplayedCatches(uniqueFilteredCatches.slice(0, ITEMS_PER_PAGE));
-    setHasMore(uniqueFilteredCatches.length > ITEMS_PER_PAGE);
-  }, [filter, uniqueFilteredCatches]);
+  // No client-side pagination logic needed - server handles it
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -143,12 +101,35 @@ const CatchSidebar = ({
     });
   };
 
+  // Track if we just loaded data to prevent immediate scroll trigger
+  const justLoadedRef = useRef(false);
+
+  // Set justLoaded flag when catches change (new data loaded)
+  useEffect(() => {
+    if (catches.length > 0) {
+      justLoadedRef.current = true;
+      // Clear the flag after a short delay to allow normal scroll behavior
+      const timer = setTimeout(() => {
+        justLoadedRef.current = false;
+      }, 500); // 500ms delay
+
+      return () => clearTimeout(timer);
+    }
+  }, [catches.length]);
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     const isNearBottom = scrollHeight - scrollTop <= clientHeight + 20;
 
-    if (isNearBottom && hasMore && !loading) {
-      loadMoreCatches();
+    // Don't trigger if we just loaded data (prevents auto-load when switching filters)
+    if (
+      isNearBottom &&
+      hasMore &&
+      !loading &&
+      onLoadMore &&
+      !justLoadedRef.current
+    ) {
+      onLoadMore();
     }
   };
 
@@ -162,20 +143,22 @@ const CatchSidebar = ({
           {filter === "me" && "My Catches"}
         </h3>
         <p className="text-gray-400 text-sm">
-          {uniqueFilteredCatches.length}{" "}
-          {uniqueFilteredCatches.length === 1 ? "catch" : "catches"}
+          {uniqueCatches.length}{" "}
+          {uniqueCatches.length === 1 ? "catch" : "catches"}
+          {hasMore && " (more available)"}
+          {!hasMore && uniqueCatches.length > 0 && " (no more available)"}
         </p>
       </div>
 
       {/* Catches List */}
       <div className="flex-1 overflow-y-auto" onScroll={handleScroll}>
-        {uniqueDisplayedCatches.length === 0 ? (
+        {uniqueCatches.length === 0 ? (
           <div className="p-4 text-center text-gray-400">
             <p>No catches found</p>
           </div>
         ) : (
           <div className="p-2 space-y-2">
-            {uniqueDisplayedCatches.map((catchItem) => (
+            {uniqueCatches.map((catchItem) => (
               <div
                 key={catchItem.id}
                 onClick={() => onCatchSelect(catchItem.id)}
@@ -268,7 +251,7 @@ const CatchSidebar = ({
             )}
 
             {/* End of list */}
-            {!hasMore && displayedCatches.length > 0 && (
+            {!hasMore && uniqueCatches.length > 0 && (
               <div className="p-4 text-center text-gray-400 text-sm">
                 <p>No more catches to load</p>
               </div>

@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
       whereClause.userId = userId;
     }
 
+    // Fetch one extra record to check if there are more
     const catches = await prisma.catch.findMany({
       where: whereClause,
       include: {
@@ -76,9 +77,15 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { createdAt: "desc" },
-      take: limit,
+      take: limit + 1, // Fetch one extra to check if there are more
       skip: offset,
     });
+
+    // Check if there are more records
+    const hasMore = catches.length > limit;
+
+    // Remove the extra record if it exists
+    const actualCatches = hasMore ? catches.slice(0, limit) : catches;
 
     // Get current user ID for like status
     let currentUserId = null;
@@ -90,12 +97,12 @@ export async function GET(request: NextRequest) {
           currentUserId = payload.userId;
         }
       }
-    } catch (error) {
+    } catch {
       // User not authenticated, currentUserId remains null
     }
 
     // Transform data to match frontend interface
-    const transformedCatches = catches.map(
+    const transformedCatches = actualCatches.map(
       (catchItem: {
         id: string;
         species: string;
@@ -185,7 +192,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       catches: transformedCatches,
-      hasMore: catches.length === limit,
+      hasMore: hasMore,
     });
   } catch (error) {
     console.error("Error fetching shared catches:", error);

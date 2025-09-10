@@ -2,7 +2,7 @@
 import { useAuth } from "@web/hooks/useAuth";
 import { useTheme } from "@web/contexts/ThemeContext";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Fish, Bug, ArrowLeft } from "lucide-react";
 import {
   CollectionHeader,
@@ -53,108 +53,147 @@ export default function CollectionPage() {
   const [countries, setCountries] = useState<
     Array<{ id: string; name: string; code: string }>
   >([]);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const fetchInProgress = useRef(false);
+  const hasMounted = useRef(false);
 
   // Ensure we're on the client side to avoid hydration mismatch
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Fetch all countries
+  // Single effect: setup and fetch data once
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || !user || hasMounted.current) return;
 
-    const fetchCountries = async () => {
+    hasMounted.current = true;
+
+    const initializePage = async () => {
+      if (fetchInProgress.current) return;
+      fetchInProgress.current = true;
+
       try {
-        const response = await fetch("/api/countries");
-        if (response.ok) {
-          const countriesData = await response.json();
+        // Step 1: Fetch countries
+        const countriesResponse = await fetch("/api/countries");
+        let countriesData: Array<{ id: string; name: string; code: string }> =
+          [];
+
+        if (countriesResponse.ok) {
+          countriesData = await countriesResponse.json();
           setCountries(countriesData);
         }
-      } catch (error) {
-        console.error("Error fetching countries:", error);
-      }
-    };
 
-    fetchCountries();
-  }, [isClient]);
+        setHasAttemptedFetch(true);
 
-  // Fetch user profile to get country
-  useEffect(() => {
-    if (!isClient || !user) return;
+        // Step 2: Set country to Belarus (or user's country)
+        const profileResponse = await fetch("/api/profile");
+        let selectedCountryName = "Belarus";
+        let selectedCountryId = "cmfb05q9j0000z5nzihd81gci"; // Belarus ID
 
-    const fetchUserProfile = async () => {
-      try {
-        const response = await fetch("/api/profile");
-        if (response.ok) {
-          const userData = await response.json();
-          if (userData.countryId) {
-            setUserCountryId(userData.countryId);
-            setSelectedCountry(userData.country?.name || "Belarus");
-          } else {
-            // If no country set, default to Belarus
-            setUserCountryId("cmfb05q9j0000z5nzihd81gci"); // Belarus ID
-            setSelectedCountry("Belarus");
+        if (profileResponse.ok) {
+          const userData = await profileResponse.json();
+          if (userData.countryId && userData.country?.name) {
+            selectedCountryId = userData.countryId;
+            selectedCountryName = userData.country.name;
           }
         }
+
+        setUserCountryId(selectedCountryId);
+        setSelectedCountry(selectedCountryName);
+
+        // Step 3: Fetch data for the selected country
+        const selectedCountryData =
+          countriesData.find(
+            (country) => country.name === selectedCountryName
+          ) ||
+          countriesData.find((country) => country.id === selectedCountryId);
+
+        if (selectedCountryData) {
+          const [fishesResponse, baitsResponse] = await Promise.all([
+            fetch(`/api/fishes?countryId=${selectedCountryData.id}`),
+            fetch(`/api/baits?countryId=${selectedCountryData.id}`),
+          ]);
+
+          if (fishesResponse.ok) {
+            const fishesData = await fishesResponse.json();
+            setFishes(fishesData);
+          }
+
+          if (baitsResponse.ok) {
+            const baitsData = await baitsResponse.json();
+            setBaits(baitsData);
+          }
+        }
+
+        // Mark initialization as complete
+        setIsInitializing(false);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
-        // Fallback to Belarus if profile fetch fails
-        setUserCountryId("cmfb05q9j0000z5nzihd81gci");
-        setSelectedCountry("Belarus");
+        console.error("Error initializing page:", error);
+        setIsInitializing(false);
+      } finally {
+        fetchInProgress.current = false;
       }
     };
 
-    fetchUserProfile();
+    initializePage();
   }, [isClient, user]);
 
-  // Fetch fishes and baits data when country changes
+  // Handle manual country changes only
   useEffect(() => {
-    if (!isClient || !selectedCountry || countries.length === 0) return;
+    if (
+      !isClient ||
+      !selectedCountry ||
+      countries.length === 0 ||
+      !hasAttemptedFetch ||
+      !userCountryId // Only run for manual changes, not initial setup
+    )
+      return;
 
-    const fetchData = async () => {
+    const fetchDataForCountry = async () => {
+      if (fetchInProgress.current) return;
+      fetchInProgress.current = true;
+
       try {
-        // Find the country ID for the selected country name
         const selectedCountryData = countries.find(
           (country) => country.name === selectedCountry
         );
 
         if (!selectedCountryData) {
           console.error("Selected country not found in countries list");
+          setFishesLoading(false);
+          setBaitsLoading(false);
           return;
         }
 
-        // Fetch fishes and baits in parallel with separate loading states
         const [fishesResponse, baitsResponse] = await Promise.all([
-          fetch(`/api/fishes?countryId=${selectedCountryData.id}`).then(
-            async (res) => {
-              setFishesLoading(true);
-              if (res.ok) {
-                const data = await res.json();
-                setFishes(data);
-              }
-              setFishesLoading(false);
-            }
-          ),
-          fetch(`/api/baits?countryId=${selectedCountryData.id}`).then(
-            async (res) => {
-              setBaitsLoading(true);
-              if (res.ok) {
-                const data = await res.json();
-                setBaits(data);
-              }
-              setBaitsLoading(false);
-            }
-          ),
+          fetch(`/api/fishes?countryId=${selectedCountryData.id}`),
+          fetch(`/api/baits?countryId=${selectedCountryData.id}`),
         ]);
+
+        if (fishesResponse.ok) {
+          const fishesData = await fishesResponse.json();
+          setFishes(fishesData);
+        }
+
+        if (baitsResponse.ok) {
+          const baitsData = await baitsResponse.json();
+          setBaits(baitsData);
+        }
       } catch (error) {
         console.error("Error fetching collection data:", error);
-        setFishesLoading(false);
-        setBaitsLoading(false);
+      } finally {
+        fetchInProgress.current = false;
       }
     };
 
-    fetchData();
-  }, [isClient, selectedCountry, countries]);
+    fetchDataForCountry();
+  }, [selectedCountry, countries, isClient, hasAttemptedFetch, userCountryId]);
+
+  // Don't render if user is null (during logout)
+  if (!user) {
+    return null;
+  }
 
   // Show loading state while checking authentication
   if (!isClient || loading) {
@@ -162,36 +201,10 @@ export default function CollectionPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <p className="text-gray-400">
-            Loading collection...
-          </p>
+          <p className="text-gray-400">Loading collection...</p>
         </div>
       </div>
     );
-  }
-
-  // Show message if countries haven't loaded or no country selected
-  if (countries.length === 0 || !selectedCountry) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg w-fit mx-auto mb-4">
-            <Fish className="w-8 h-8 text-blue-400" />
-          </div>
-          <h2 className="text-xl font-semibold text-white mb-2">
-            Loading Countries
-          </h2>
-          <p className="text-gray-400 mb-6">
-            Loading available countries and collection data...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render if user is null (during logout)
-  if (!user) {
-    return null;
   }
 
   // Filter fishes and baits based on search query and country
@@ -237,18 +250,20 @@ export default function CollectionPage() {
               title="Fish Species"
               icon={<Fish className="w-5 h-5 text-blue-400" />}
               items={filteredFishes}
-              onItemClick={(item) => setSelectedFish({
-                id: item.id,
-                commonName: item.commonName,
-                scientificName: item.scientificName || "",
-                countryId: item.country.id,
-                country: item.country,
-                habitat: item.habitat || null,
-                imageUrl: item.imageUrl
-              })}
+              onItemClick={(item) =>
+                setSelectedFish({
+                  id: item.id,
+                  commonName: item.commonName,
+                  scientificName: item.scientificName || "",
+                  countryId: item.country.id,
+                  country: item.country,
+                  habitat: item.habitat || null,
+                  imageUrl: item.imageUrl,
+                })
+              }
               emptyMessage="No fish species available"
               searchQuery={searchQuery}
-              loading={fishesLoading}
+              loading={isInitializing}
             />
 
             {/* Bait Collection */}
@@ -256,16 +271,18 @@ export default function CollectionPage() {
               title="Fishing Baits"
               icon={<Bug className="w-5 h-5 text-green-400" />}
               items={filteredBaits}
-              onItemClick={(item) => setSelectedBait({
-                id: item.id,
-                commonName: item.commonName,
-                countryId: item.country.id,
-                country: item.country,
-                imageUrl: item.imageUrl
-              })}
+              onItemClick={(item) =>
+                setSelectedBait({
+                  id: item.id,
+                  commonName: item.commonName,
+                  countryId: item.country.id,
+                  country: item.country,
+                  imageUrl: item.imageUrl,
+                })
+              }
               emptyMessage="No baits available"
               searchQuery={searchQuery}
-              loading={baitsLoading}
+              loading={isInitializing}
             />
           </div>
 

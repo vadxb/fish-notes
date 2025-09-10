@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTheme } from "@web/contexts/ThemeContext";
@@ -41,43 +41,36 @@ const RankingsPage = () => {
   >({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const fetchInProgress = useRef(false);
+  const hasMounted = useRef(false);
 
-  const periods = useMemo(
-    () => [
-      { key: "day", label: "TODAY", icon: "🌅" },
-      { key: "month", label: "THIS MONTH", icon: "📅" },
-      { key: "alltime", label: "ALL TIME", icon: "🏆" },
-    ],
-    []
-  );
-
-  const metrics = useMemo(
-    () => [
-      {
-        key: "weight",
-        label: "Top 50 Users by Total Catch Weight",
-        color: "text-blue-600",
-      },
-      {
-        key: "count",
-        label: "Top 50 Users by Catch Count",
-        color: "text-green-600",
-      },
-    ],
-    []
-  );
-
-  const fetchAllLeaderboards = useCallback(async () => {
-    if (Object.keys(leaderboards).length > 0) {
-      return; // Already fetched
+  const fetchAllLeaderboards = async () => {
+    // Prevent multiple simultaneous fetches, but allow fresh data each time
+    if (fetchInProgress.current) {
+      return;
     }
 
+    fetchInProgress.current = true;
     setLoading(true);
     setError(null);
+    setHasAttemptedFetch(true);
 
     try {
-      const promises = periods.flatMap((period) =>
-        metrics.map((metric) =>
+      // Define periods and metrics inline to avoid dependency issues
+      const periodsData = [
+        { key: "day", label: "TODAY" },
+        { key: "month", label: "THIS MONTH" },
+        { key: "alltime", label: "ALL TIME" },
+      ];
+
+      const metricsData = [
+        { key: "weight", label: "Top 50 Users by Total Catch Weight" },
+        { key: "count", label: "Top 50 Users by Catch Count" },
+      ];
+
+      const promises = periodsData.flatMap((period) =>
+        metricsData.map((metric) =>
           fetch(`/api/leaderboard?period=${period.key}&metric=${metric.key}`)
             .then((response) => {
               if (!response.ok) {
@@ -103,12 +96,17 @@ const RankingsPage = () => {
       );
     } finally {
       setLoading(false);
+      fetchInProgress.current = false;
     }
-  }, [leaderboards, periods, metrics]);
+  };
 
   useEffect(() => {
-    fetchAllLeaderboards();
-  }, [fetchAllLeaderboards]);
+    // Only fetch once per component mount
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      fetchAllLeaderboards();
+    }
+  }, []); // Empty dependency array
 
   const formatValue = (user: LeaderboardUser, metric: string) => {
     switch (metric) {
@@ -125,11 +123,23 @@ const RankingsPage = () => {
     return user.username || user.name || "Anonymous";
   };
 
-  const transformLeaderboardData = useCallback((): LeaderboardCardData[] => {
+  const transformLeaderboardData = (): LeaderboardCardData[] => {
     const cardData: LeaderboardCardData[] = [];
 
-    periods.forEach((period) => {
-      metrics.forEach((metric) => {
+    // Use the same data structure as in fetchAllLeaderboards
+    const periodsData = [
+      { key: "day", label: "TODAY" },
+      { key: "month", label: "THIS MONTH" },
+      { key: "alltime", label: "ALL TIME" },
+    ];
+
+    const metricsData = [
+      { key: "weight", label: "Top 50 Users by Total Catch Weight" },
+      { key: "count", label: "Top 50 Users by Catch Count" },
+    ];
+
+    periodsData.forEach((period) => {
+      metricsData.forEach((metric) => {
         const key = `${period.key}-${metric.key}`;
         const data = leaderboards[key];
 
@@ -158,7 +168,7 @@ const RankingsPage = () => {
     });
 
     return cardData;
-  }, [leaderboards, periods, metrics]);
+  };
 
   const leaderboardData = transformLeaderboardData();
 
@@ -199,7 +209,7 @@ const RankingsPage = () => {
               Retry
             </button>
           </div>
-        ) : leaderboardData.length === 0 ? (
+        ) : hasAttemptedFetch && leaderboardData.length === 0 ? (
           <div className="text-center py-16">
             <div className="mb-6">
               <div className="w-24 h-24 mx-auto mb-4 bg-gray-800/50 rounded-full flex items-center justify-center">
@@ -218,8 +228,12 @@ const RankingsPage = () => {
               </p>
             </div>
           </div>
-        ) : (
+        ) : hasAttemptedFetch ? (
           <LeaderboardSection leaderboardData={leaderboardData} />
+        ) : (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
+          </div>
         )}
       </div>
     </div>

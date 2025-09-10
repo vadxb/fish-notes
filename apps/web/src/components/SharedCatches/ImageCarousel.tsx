@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageCarouselProps {
@@ -7,6 +7,11 @@ interface ImageCarouselProps {
 
 const ImageCarousel = ({ images }: ImageCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Reset to first image when images change (new catch selected)
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [images]);
 
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);

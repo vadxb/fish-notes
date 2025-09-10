@@ -75,6 +75,33 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Remove all focus styles from sidebar buttons */
+  .sidebar-button {
+    outline: none !important;
+  }
+
+  .sidebar-button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar-button:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar-button:active {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Prevent any white border flash during state transitions */
+  .sidebar-button:not(.bg-blue-600):not(.bg-emerald-600):not(.bg-cyan-600):not(
+      .bg-orange-600
+    ):not(.bg-purple-600) {
+    border: 1px solid transparent !important;
+  }
 }
 
 /* Custom Scrollbar Styles */

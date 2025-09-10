@@ -56,6 +56,10 @@ const SharedCatchesPage = () => {
   const [sidebarHeight, setSidebarHeight] = useState("calc(100vh - 8rem)");
   const filterRef = useRef<HTMLDivElement>(null);
 
+  // Pagination state
+  const [sidebarHasMore, setSidebarHasMore] = useState(true);
+  const [sidebarOffset, setSidebarOffset] = useState(0);
+
   // Get current user ID from auth hook
   const currentUserId = currentUser?.id || null;
 
@@ -115,13 +119,29 @@ const SharedCatchesPage = () => {
     }
   };
 
-  // Fetch filtered catches for sidebar only
-  const fetchSidebarCatches = async (filterType: "all" | "user" | "me") => {
+  // Fetch filtered catches for sidebar with pagination
+  // Track ongoing fetch to prevent duplicates
+  const fetchInProgress = useRef(false);
+
+  const fetchSidebarCatches = async (
+    filterType: "all" | "user" | "me",
+    reset = false
+  ) => {
+    // Prevent duplicate fetches
+    if (fetchInProgress.current) {
+      return;
+    }
+
     try {
+      fetchInProgress.current = true;
       setSidebarLoading(true);
 
       const params = new URLSearchParams();
-      params.append("limit", "100");
+      params.append("limit", "100"); // Fetch 100 items per request
+
+      if (!reset) {
+        params.append("offset", sidebarOffset.toString());
+      }
 
       // Determine which user to fetch catches for based on filter
       let targetUserId: string | null = null;
@@ -153,39 +173,67 @@ const SharedCatchesPage = () => {
       }
 
       const data = await response.json();
-      setSidebarCatches(data.catches);
+
+      if (reset) {
+        setSidebarCatches(data.catches);
+        setSidebarOffset(0); // Reset offset to 0 for new filter
+      } else {
+        // Filter out duplicates when appending new catches
+        setSidebarCatches((prev) => {
+          const existingIds = new Set(prev.map((catchItem) => catchItem.id));
+          const newCatches = data.catches.filter(
+            (catchItem) => !existingIds.has(catchItem.id)
+          );
+
+          // Only update if there are actually new catches
+          if (newCatches.length > 0) {
+            return [...prev, ...newCatches];
+          } else {
+            return prev;
+          }
+        });
+        setSidebarOffset((prev) => prev + data.catches.length); // Increment by actual number of new items
+      }
+
+      setSidebarHasMore(data.hasMore);
 
       // Don't change selected catch, keep main content as is
     } catch (err) {
       console.error("Error fetching sidebar catches:", err);
     } finally {
       setSidebarLoading(false);
+      fetchInProgress.current = false;
     }
   };
 
+  // Track if we've initialized to prevent double calls
+  const hasInitialized = useRef(false);
+
+  // Consolidated initialization
   useEffect(() => {
     const initializeData = async () => {
-      // Wait for auth to load, then fetch all catches
-      if (!authLoading) {
+      if (!authLoading && currentUserId && !hasInitialized.current) {
+        hasInitialized.current = true;
+
+        // Set initial filter first
+        setInitialFilter();
+
+        // Fetch all catches for main content
         await fetchAllCatches();
+
+        // Fetch sidebar data with current filter
+        await fetchSidebarCatches(filter, true);
       }
     };
     initializeData();
-  }, [authLoading]);
+  }, [authLoading, currentUserId, userId]);
 
-  // Set initial filter when currentUserId or userId changes
+  // Fetch sidebar data when filter changes (but not on initial load)
   useEffect(() => {
-    if (!authLoading) {
-      setInitialFilter();
+    if (currentUserId && !authLoading && hasInitialized.current) {
+      fetchSidebarCatches(filter, true);
     }
-  }, [currentUserId, userId, authLoading]);
-
-  // Fetch sidebar data when filter changes
-  useEffect(() => {
-    if (currentUserId && !authLoading) {
-      fetchSidebarCatches(filter);
-    }
-  }, [filter, currentUserId, authLoading]);
+  }, [filter]);
 
   // Calculate sidebar height based on document height
   useEffect(() => {
@@ -228,36 +276,34 @@ const SharedCatchesPage = () => {
     };
   }, [showFilter]);
 
-  const handleCatchSelect = async (catchId: string) => {
-    const selected = allCatches.find((c) => c.id === catchId);
+  const handleCatchSelect = (catchId: string) => {
+    // First check allCatches (main content)
+    let selected = allCatches.find((c) => c.id === catchId);
+
+    // If not found, check sidebarCatches (pagination data)
+    if (!selected) {
+      selected = sidebarCatches.find((c) => c.id === catchId);
+    }
+
     if (selected) {
-      // Refresh the catch data to get current likes and comments
-      try {
-        const response = await fetch(`/api/shared-catches?limit=100`);
-        if (response.ok) {
-          const data = await response.json();
-          const updatedCatch = data.catches.find((c: { id: string }) => c.id === catchId);
-          if (updatedCatch) {
-            setSelectedCatch(updatedCatch);
-          } else {
-            setSelectedCatch(selected);
-          }
-        } else {
-          setSelectedCatch(selected);
-        }
-      } catch (error) {
-        console.error("Error refreshing catch data:", error);
-        setSelectedCatch(selected);
-      }
+      setSelectedCatch(selected);
     }
   };
 
   const handleFilterChange = async (newFilter: "all" | "user" | "me") => {
     setFilter(newFilter);
     setShowFilter(false);
+    setSidebarOffset(0); // Reset pagination
+    setSidebarHasMore(true); // Reset hasMore
 
     // Only fetch sidebar data, keep main content unchanged
-    await fetchSidebarCatches(newFilter);
+    await fetchSidebarCatches(newFilter, true);
+  };
+
+  const handleLoadMore = async () => {
+    if (sidebarHasMore && !sidebarLoading) {
+      await fetchSidebarCatches(filter, false);
+    }
   };
 
   if (authLoading || loading) {
@@ -363,6 +409,8 @@ const SharedCatchesPage = () => {
               currentUserId={currentUserId || undefined}
               selectedUserId={userId || undefined}
               loading={sidebarLoading}
+              hasMore={sidebarHasMore}
+              onLoadMore={handleLoadMore}
             />
           </div>
         </div>
