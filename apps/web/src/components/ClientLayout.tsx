@@ -16,7 +16,16 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
     setIsClient(true);
   }, []);
 
-  // Always render the same structure to prevent hydration mismatch
+  // During SSR/prerendering, render minimal structure without context providers
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
+        {children}
+      </div>
+    );
+  }
+
+  // On client side, render with full context providers
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900">
       <AuthProvider>

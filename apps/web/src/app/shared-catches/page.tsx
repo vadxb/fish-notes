@@ -180,9 +180,11 @@ const SharedCatchesPage = () => {
       } else {
         // Filter out duplicates when appending new catches
         setSidebarCatches((prev) => {
-          const existingIds = new Set(prev.map((catchItem) => catchItem.id));
+          const existingIds = new Set(
+            prev.map((catchItem: SharedCatch) => catchItem.id)
+          );
           const newCatches = data.catches.filter(
-            (catchItem) => !existingIds.has(catchItem.id)
+            (catchItem: SharedCatch) => !existingIds.has(catchItem.id)
           );
 
           // Only update if there are actually new catches
