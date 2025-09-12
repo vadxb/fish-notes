@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fisherman's Notes by XBS - Application Description</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f8fafc;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 40px 0;
+        background: linear-gradient(135deg, #1e293b 0%, #1e40af 100%);
+        color: white;
+        border-radius: 12px;
+      }
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+      .header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+      }
+      .section {
+        background: white;
+        margin-bottom: 30px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      .section h2 {
+        color: #1e40af;
+        border-bottom: 3px solid #3b82f6;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+      .page-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .page-card h3 {
+        color: #1e293b;
+        margin-bottom: 10px;
+        font-size: 1.3rem;
+      }
+      .page-card .url {
+        color: #64748b;
+        font-family: monospace;
+        background: #e2e8f0;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      .feature {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        border-left: 4px solid #3b82f6;
+      }
+      .screenshot-placeholder {
+        background: #e2e8f0;
+        border: 2px dashed #94a3b8;
+        border-radius: 8px;
+        padding: 40px;
+        text-align: center;
+        color: #64748b;
+        margin: 15px 0;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .screenshot-container {
+        width: 100%;
+        max-width: 1000px;
+        margin: 10px auto;
+        text-align: center;
+      }
+      .screenshot-image {
+        width: 100%;
+        height: auto;
+        /*aspect-ratio: 16/9;*/
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: #f8fafc;
+      }
+      .tech-stack {
+        background: #1e293b;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+      .tech-stack h4 {
+        margin-bottom: 15px;
+        color: #60a5fa;
+      }
+      .tech-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+      }
+      .tech-item {
+        background: #334155;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Fisherman's Notes by XBS</h1>
+      <p>The Ultimate Fishing Companion App</p>
+      <p>
+        Track catches, discover spots, plan trips, and connect with fellow
+        anglers
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>📱 Application Overview</h2>
+      <p>
+        Fisherman's Notes is a comprehensive web application designed for
+        fishing enthusiasts to track their catches, discover new fishing spots,
+        plan fishing trips, and connect with a community of fellow anglers. The
+        app features a modern, responsive design with multiple themes and a
+        complete ecosystem for fishing management.
+      </p>
+
+      <div class="tech-stack">
+        <h4>🛠️ Technology Stack</h4>
+        <div class="tech-list">
+          <div class="tech-item">Next.js 15.5.2</div>
+          <div class="tech-item">React 19.1.0</div>
+          <div class="tech-item">TypeScript</div>
+          <div class="tech-item">Tailwind CSS</div>
+          <div class="tech-item">Zustand (State Management)</div>
+          <div class="tech-item">Prisma (Database ORM)</div>
+          <div class="tech-item">Leaflet (Maps)</div>
+          <div class="tech-item">Vercel (Deployment)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="page-card">
+        <h3>🔐 Login Page</h3>
+        <div class="url">/login</div>
+        <p><strong>Purpose:</strong> User authentication and account access</p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Email and password authentication</li>
+          <li>Form validation and error handling</li>
+          <li>Loading states during authentication</li>
+          <li>Responsive design with theme support</li>
+          <li>Automatic redirect to dashboard after successful login</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/login-screenshot.png"
+            alt="Login form with Fisherman's Notes branding"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>📊 Dashboard</h3>
+        <div class="url">/dashboard</div>
+        <p>
+          <strong>Purpose:</strong> Main hub displaying user's fishing
+          statistics and recent activity
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Fishing statistics overview (total catches, weight, species)</li>
+          <li>Recent catches display with photos</li>
+          <li>Upcoming fishing events/plans</li>
+          <li>Favorite fishing spots quick access</li>
+          <li>Quick action buttons for common tasks</li>
+          <li>Theme-aware design with customizable backgrounds</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/dashboard-screenshot.png"
+            alt="Dashboard with statistics cards, recent catches, and navigation"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>🎣 Catches Management</h3>
+        <div class="url">/catches</div>
+        <p>
+          <strong>Purpose:</strong> Comprehensive catch logging and management
+          system
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>View all logged catches in grid/list format</li>
+          <li>Search and filter catches by species, date, location</li>
+          <li>
+            Detailed catch information (species, weight, bait used, location)
+          </li>
+          <li>Photo gallery for each catch</li>
+          <li>Edit and delete catch records</li>
+          <li>Export catch data</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/catches-screenshot.png"
+            alt="Catches page showing grid of catch cards with photos"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>➕ New Catch</h3>
+        <div class="url">/catches/new</div>
+        <p>
+          <strong>Purpose:</strong> Log new fishing catches with detailed
+          information
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Species selection from comprehensive database</li>
+          <li>Weight and length measurements</li>
+          <li>Bait and tackle used</li>
+          <li>Location selection (GPS coordinates or manual entry)</li>
+          <li>Photo upload with multiple images per catch</li>
+          <li>Notes and additional details</li>
+          <li>Weather conditions at time of catch</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/new-catch-screenshot-1.png"
+            alt="New catch form with species selector and photo upload"
+            class="screenshot-image"
+          />
+        </div>
+        <div class="screenshot-container">
+          <img
+            src="/new-catch-screenshot-2.png"
+            alt="New catch form with species selector and photo upload"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>📍 Fishing Spots</h3>
+        <div class="url">/spots</div>
+        <p>
+          <strong>Purpose:</strong> Discover, save, and manage favorite fishing
+          locations
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Interactive map view with all saved spots</li>
+          <li>Spot details (name, description, coordinates, photos)</li>
+          <li>Fishing conditions and tips for each spot</li>
+          <li>Favorite spots management</li>
+          <li>Search and filter spots by location, type, or rating</li>
+          <li>Share spots with other anglers</li>
+          <li>GPS navigation to spots</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/spots-screenshot.png"
+            alt="Spots page with map view and spot cards"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>📍 Spot Details & Management</h3>
+        <div class="url">/spots/[id]</div>
+        <p>
+          <strong>Purpose:</strong> Detailed view and editing of individual
+          fishing spots
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Interactive map with precise location marking</li>
+          <li>Multiple marker support for different fishing areas</li>
+          <li>Map screenshot capture functionality</li>
+          <li>Spot information editing (name, description, coordinates)</li>
+          <li>Photo gallery for the spot</li>
+          <li>Fishing tips and conditions</li>
+          <li>Recent catches at this location</li>
+          <li>Marker management (add, edit, remove markers)</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/spot-detail-screenshot.png"
+            alt="Spot detail page with interactive map and marker management"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>➕ New Spot</h3>
+        <div class="url">/spots/new</div>
+        <p><strong>Purpose:</strong> Add new fishing spots to the database</p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Interactive map for location selection</li>
+          <li>GPS coordinate capture</li>
+          <li>Spot name and description</li>
+          <li>Fishing type and conditions</li>
+          <li>Photo upload for the location</li>
+          <li>Accessibility and parking information</li>
+          <li>Best fishing times and seasons</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/new-spot-screenshot.png"
+            alt="New spot creation form with map interface"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>📅 Events & Trips</h3>
+        <div class="url">/events</div>
+        <p>
+          <strong>Purpose:</strong> Plan and manage fishing trips and events
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Calendar view of fishing events</li>
+          <li>Grid view for detailed event information</li>
+          <li>Event creation and editing</li>
+          <li>Event details (date, time, location, participants)</li>
+          <li>Weather integration for trip planning</li>
+          <li>Event notes and preparation checklists</li>
+          <li>Participant management</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/events-screenshot-grid.png"
+            alt="Events page in Grid View with event cards"
+            class="screenshot-image"
+          />
+        </div>
+        <div class="screenshot-container">
+          <img
+            src="/events-screenshot-calendar.png"
+            alt="Events page in Calendar View with event cards"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>📅 Event Details</h3>
+        <div class="url">/events/[id]</div>
+        <p>
+          <strong>Purpose:</strong> Detailed view and management of individual
+          fishing events
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Event information display</li>
+          <li>Participant list and management</li>
+          <li>Event notes and updates</li>
+          <li>Weather forecast integration</li>
+          <li>Location details and directions</li>
+          <li>Equipment checklist</li>
+          <li>Post-event catch logging</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/event-detail-screenshot.png"
+            alt="Event detail page with participant list and weather info"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>➕ New Event</h3>
+        <div class="url">/events/new</div>
+        <p><strong>Purpose:</strong> Create new fishing events and trips</p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Event title and description</li>
+          <li>Date and time selection</li>
+          <li>Location selection from saved spots</li>
+          <li>Participant invitation system</li>
+          <li>Event type and category selection</li>
+          <li>Preparation notes and checklists</li>
+          <li>Weather considerations</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/new-event-screenshot.png"
+            alt="New event creation form with date picker and location selector"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>🏆 Rankings & Leaderboards</h3>
+        <div class="url">/rankings</div>
+        <p>
+          <strong>Purpose:</strong> Competitive rankings and community
+          leaderboards
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>
+            Multiple leaderboard categories (total weight, catch count, species
+            diversity)
+          </li>
+          <li>Time-based rankings (daily, monthly, all-time)</li>
+          <li>User profiles with avatars and statistics</li>
+          <li>Achievement badges and milestones</li>
+          <li>Regional and global rankings</li>
+          <li>Progress tracking and goal setting</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/rankings-screenshot.png"
+            alt="Rankings page with leaderboard tables and user profiles"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>👥 Shared Catches</h3>
+        <div class="url">/shared-catches</div>
+        <p><strong>Purpose:</strong> Community sharing and social features</p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Browse catches shared by other anglers</li>
+          <li>Like and comment on shared catches</li>
+          <li>Share your own catches with the community</li>
+          <li>Follow other anglers</li>
+          <li>Discover new fishing techniques and locations</li>
+          <li>Photo galleries and catch stories</li>
+          <li>Social interaction and networking</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/shared-catches-screenshot.png"
+            alt="Shared catches feed with social interactions"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>📚 Collection</h3>
+        <div class="url">/collection</div>
+        <p>
+          <strong>Purpose:</strong> Fish species and bait collection management
+        </p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Fish species database with detailed information</li>
+          <li>Personal catch collection tracking</li>
+          <li>Bait and tackle inventory</li>
+          <li>Species identification guide</li>
+          <li>Collection progress and statistics</li>
+          <li>Photo galleries for each species</li>
+          <li>Fishing tips for different species</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/collection-screenshot.png"
+            alt="Collection page with fish species cards and progress tracking"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h3>👤 Profile & Settings</h3>
+        <div class="url">/profile</div>
+        <p><strong>Purpose:</strong> User account management and preferences</p>
+        <p><strong>Features:</strong></p>
+        <ul>
+          <li>Personal information editing</li>
+          <li>Profile picture upload</li>
+          <li>Theme selection and customization</li>
+          <li>Account settings and preferences</li>
+          <li>Subscription management (free/premium)</li>
+          <li>Privacy settings</li>
+          <li>Data export and backup</li>
+          <li>Country and location settings</li>
+        </ul>
+        <div class="screenshot-container">
+          <img
+            src="/profile-screenshot-1.png"
+            alt="Profile page with settings and theme selector"
+            class="screenshot-image"
+          />
+        </div>
+        <div class="screenshot-container">
+          <img
+            src="/profile-screenshot-2.png"
+            alt="Profile page with settings and theme selector"
+            class="screenshot-image"
+          />
+        </div>
+        <div class="screenshot-container">
+          <img
+            src="/profile-screenshot-3.png"
+            alt="Profile page with settings and theme selector"
+            class="screenshot-image"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🎨 Design & User Experience</h2>
+      <div class="features">
+        <div class="feature">
+          <h4>🎨 Multiple Themes</h4>
+          <p>
+            Night Fishing, Rustic Nature, Ice Fishing, Sunset Adventure and
+            Tech-Driven Angler themes with customizable color schemes and
+            backgrounds
+          </p>
+        </div>
+        <div class="feature">
+          <h4>📱 Responsive Design</h4>
+          <p>
+            Fully responsive layout that works perfectly on desktop, tablet, and
+            mobile devices
+          </p>
+        </div>
+        <div class="feature">
+          <h4>🗺️ Interactive Maps</h4>
+          <p>
+            Leaflet-powered maps with GPS integration, marker management, and
+            screenshot capture
+          </p>
+        </div>
+        <div class="feature">
+          <h4>📸 Photo Management</h4>
+          <p>
+            Advanced photo upload, gallery management, and image optimization
+          </p>
+        </div>
+        <div class="feature">
+          <h4>🔍 Search & Filter</h4>
+          <p>
+            Comprehensive search and filtering across catches, spots, and events
+          </p>
+        </div>
+        <div class="feature">
+          <h4>⚡ Real-time Updates</h4>
+          <p>
+            Live data updates and real-time synchronization across all features
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>🔧 Technical Features</h2>
+      <div class="features">
+        <div class="feature">
+          <h4>🔐 Authentication</h4>
+          <p>
+            Secure user authentication with JWT tokens and session management
+          </p>
+        </div>
+        <div class="feature">
+          <h4>💾 Data Management</h4>
+          <p>Efficient data storage with Prisma ORM and relational database</p>
+        </div>
+        <div class="feature">
+          <h4>🌐 API Integration</h4>
+          <p>RESTful API endpoints for all application features</p>
+        </div>
+        <div class="feature">
+          <h4>📊 Analytics</h4>
+          <p>Comprehensive statistics and analytics for fishing data</p>
+        </div>
+        <div class="feature">
+          <h4>🔄 State Management</h4>
+          <p>Zustand for efficient client-side state management</p>
+        </div>
+        <div class="feature">
+          <h4>🚀 Performance</h4>
+          <p>Optimized for speed with Next.js SSR and code splitting</p>
+        </div>
+      </div>
+    </div>
+
+    <footer
+      style="
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #64748b;
+        border-top: 1px solid #e2e8f0;
+      "
+    >
+      <p>© 2025 Fisherman's Notes by XBS. All rights reserved.</p>
+      <p>Built with ❤️ for the fishing community</p>
+    </footer>
+  </body>
+</html>

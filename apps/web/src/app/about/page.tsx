@@ -17,6 +17,7 @@ import {
   Palette,
   Target,
 } from "lucide-react";
+import BrowserWrapper from "../../components/BrowserWrapper";
 
 export default function AboutPage() {
   const [activeScreenshot, setActiveScreenshot] = useState(0);
@@ -51,7 +52,7 @@ export default function AboutPage() {
       title: "Dashboard Overview",
       description:
         "Track your fishing progress with comprehensive statistics and recent catches",
-      image: "/screenshots/dashboard.png",
+      image: "/screenshots/dashboard.jpg",
       alt: "Fisherman&apos;s Notes Dashboard showing fishing statistics and recent catches",
     },
     {
@@ -59,7 +60,7 @@ export default function AboutPage() {
       title: "Catch Logging",
       description:
         "Log your catches with detailed information including species, weight, and photos",
-      image: "/screenshots/catch-logging.png",
+      image: "/screenshots/catch-logging.jpg",
       alt: "Fisherman&apos;s Notes catch logging interface with species selection and photo upload",
     },
     {
@@ -67,7 +68,7 @@ export default function AboutPage() {
       title: "Spot Management",
       description:
         "Discover and save your favorite fishing spots with interactive maps",
-      image: "/screenshots/spots.png",
+      image: "/screenshots/spots.jpg",
       alt: "Fisherman&apos;s Notes spot management with map view and location details",
     },
     {
@@ -75,7 +76,7 @@ export default function AboutPage() {
       title: "Event Planning",
       description:
         "Plan and organize your fishing trips with calendar integration",
-      image: "/screenshots/events.png",
+      image: "/screenshots/events.jpg",
       alt: "Fisherman&apos;s Notes event planning calendar with fishing trip details",
     },
     {
@@ -83,14 +84,14 @@ export default function AboutPage() {
       title: "Community Sharing",
       description:
         "Share your catches with the community and discover others&apos; achievements",
-      image: "/screenshots/shared-catches.png",
+      image: "/screenshots/shared-catches.jpg",
       alt: "Fisherman&apos;s Notes community sharing with catch photos and comments",
     },
     {
       id: 6,
       title: "Leaderboards",
       description: "Compete with other anglers and track your rankings",
-      image: "/screenshots/leaderboard.png",
+      image: "/screenshots/leaderboard.jpg",
       alt: "Fisherman&apos;s Notes leaderboard showing top anglers and rankings",
     },
   ];
@@ -101,7 +102,7 @@ export default function AboutPage() {
       name: "Night Fishing",
       description: "Dark, mysterious atmosphere perfect for nocturnal angling",
       icon: "🌙",
-      image: "/themes/night.png",
+      image: "/themes/night.jpg",
       colors: ["#1e40af", "#3b82f6", "#60a5fa"],
       features: [
         "Dark blue gradients",
@@ -114,7 +115,7 @@ export default function AboutPage() {
       name: "Rustic Nature",
       description: "Warm earth tones inspired by natural outdoor environments",
       icon: "🌲",
-      image: "/themes/nature.png",
+      image: "/themes/nature.jpg",
       colors: ["#92400e", "#10b981", "#34d399"],
       features: ["Earth tones", "Natural feel", "Outdoor inspired"],
     },
@@ -123,7 +124,7 @@ export default function AboutPage() {
       name: "Ice Fishing",
       description: "Cool, crisp whites and blues for winter fishing adventures",
       icon: "❄️",
-      image: "/themes/ice.png",
+      image: "/themes/ice.jpg",
       colors: ["#0ea5e9", "#38bdf8", "#7dd3fc"],
       features: ["Cool blues", "Winter vibes", "Ice fishing ready"],
     },
@@ -133,7 +134,7 @@ export default function AboutPage() {
       description:
         "Warm oranges and purples capturing the magic of golden hour",
       icon: "🌅",
-      image: "/themes/sunset.png",
+      image: "/themes/sunset.jpg",
       colors: ["#dc2626", "#f97316", "#fb923c"],
       features: ["Warm oranges", "Golden hour", "Adventure ready"],
     },
@@ -143,7 +144,7 @@ export default function AboutPage() {
       description:
         "Modern, high-tech aesthetic with neon accents and sleek design",
       icon: "⚡",
-      image: "/themes/tech.png",
+      image: "/themes/tech.jpg",
       colors: ["#7c3aed", "#a855f7", "#c084fc"],
       features: ["Modern design", "Tech aesthetic", "Sleek interface"],
     },
@@ -200,7 +201,7 @@ export default function AboutPage() {
       name: "Mike Johnson",
       role: "Professional Angler",
       content:
-        "Fisherman&apos;s Notes has completely transformed how I track my fishing. The spot discovery feature helped me find incredible new locations I never knew existed.",
+        "Fisherman's Notes has completely transformed how I track my fishing. The spot discovery feature helped me find incredible new locations I never knew existed.",
       rating: 5,
     },
     {
@@ -439,7 +440,10 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
             {/* Theme Carousel */}
             <div className="relative lg:col-span-2">
-              <div className="rounded-2xl overflow-hidden shadow-2xl">
+              <BrowserWrapper
+                title={`${themes[activeTheme].name} Theme`}
+                className="shadow-2xl"
+              >
                 <div className="aspect-[4/3] bg-gray-200 flex items-center justify-center min-h-[600px]">
                   {isClient ? (
                     <>
@@ -487,7 +491,7 @@ export default function AboutPage() {
                     </div>
                   )}
                 </div>
-              </div>
+              </BrowserWrapper>
 
               {/* Carousel Navigation */}
               {isClient && (
@@ -631,51 +635,56 @@ export default function AboutPage() {
             {/* Screenshot Column - Bigger */}
             <div className="lg:col-span-2">
               <div className="relative">
-                <div className="aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center min-h-[600px] shadow-lg">
-                  {isClient ? (
-                    <>
-                      <img
-                        src={screenshots[activeScreenshot].image}
-                        alt={screenshots[activeScreenshot].alt}
-                        className="w-full h-full object-contain"
-                        onError={(e) => {
-                          // Fallback to placeholder if image doesn't exist
-                          e.currentTarget.style.display = "none";
-                          const nextElement = e.currentTarget
-                            .nextElementSibling as HTMLElement;
-                          if (nextElement) {
-                            nextElement.style.display = "flex";
-                          }
-                        }}
-                      />
-                      <div className="hidden flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
+                <BrowserWrapper
+                  title={screenshots[activeScreenshot].title}
+                  className="shadow-lg"
+                >
+                  <div className="aspect-[16/9] bg-gray-100 flex items-center justify-center min-h-[500px]">
+                    {isClient ? (
+                      <>
+                        <img
+                          src={screenshots[activeScreenshot].image}
+                          alt={screenshots[activeScreenshot].alt}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            // Fallback to placeholder if image doesn't exist
+                            e.currentTarget.style.display = "none";
+                            const nextElement = e.currentTarget
+                              .nextElementSibling as HTMLElement;
+                            if (nextElement) {
+                              nextElement.style.display = "flex";
+                            }
+                          }}
+                        />
+                        <div className="hidden flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
+                          <Camera className="w-16 h-16 mb-4 text-gray-400" />
+                          <p className="text-lg font-medium mb-2">
+                            {screenshots[activeScreenshot].title}
+                          </p>
+                          <p className="text-sm text-center max-w-xs">
+                            Screenshot placeholder - Replace with actual image
+                          </p>
+                          <p className="text-xs text-gray-400 mt-2">
+                            File: {screenshots[activeScreenshot].image}
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
                         <Camera className="w-16 h-16 mb-4 text-gray-400" />
                         <p className="text-lg font-medium mb-2">
-                          {screenshots[activeScreenshot].title}
+                          {screenshots[0].title}
                         </p>
                         <p className="text-sm text-center max-w-xs">
                           Screenshot placeholder - Replace with actual image
                         </p>
                         <p className="text-xs text-gray-400 mt-2">
-                          File: {screenshots[activeScreenshot].image}
+                          File: {screenshots[0].image}
                         </p>
                       </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-gray-500 bg-gray-100 w-full h-full">
-                      <Camera className="w-16 h-16 mb-4 text-gray-400" />
-                      <p className="text-lg font-medium mb-2">
-                        {screenshots[0].title}
-                      </p>
-                      <p className="text-sm text-center max-w-xs">
-                        Screenshot placeholder - Replace with actual image
-                      </p>
-                      <p className="text-xs text-gray-400 mt-2">
-                        File: {screenshots[0].image}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
+                </BrowserWrapper>
 
                 {/* Screenshot Navigation */}
                 {isClient && (

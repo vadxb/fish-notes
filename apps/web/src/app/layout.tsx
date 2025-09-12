@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import "../styles/transitions.css";
 import ClientLayout from "../components/ClientLayout";
 
 const geistSans = Geist({
@@ -48,3 +49,4 @@ export default function RootLayout({
 
 // Disable static generation to prevent context issues
 export const dynamic = "force-dynamic";
+export const revalidate = 0;

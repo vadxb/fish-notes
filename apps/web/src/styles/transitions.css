@@ -1,0 +1,22 @@
+/* Smooth page transitions */
+.page-transition {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.page-transition.loading {
+  opacity: 0;
+}
+
+/* Prevent layout shifts */
+.min-h-screen {
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+}
+
+/* Smooth background transitions */
+.bg-gradient-to-br {
+  transition: background 0.3s ease-in-out;
+}
+
+/* Smooth page transitions - removed body visibility to prevent hydration issues */

@@ -30,8 +30,8 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
-    //"../../packages/store/useSpotStore.ts"    //"../../packages/ui/src/**/*.web.tsx"
+    ".next/types/**/*.ts",
+    "next.config.js" //"../../packages/store/useSpotStore.ts"    //"../../packages/ui/src/**/*.web.tsx"
   ],
   "exclude": ["node_modules"]
 }
